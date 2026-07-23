@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.SMSForwarder" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">#00E676</item>
+        <item name="colorPrimaryVariant">#00B248</item>
+        <item name="colorOnPrimary">#000000</item>
+        <item name="android:windowBackground">#0D0D0D</item>
+    </style>
+</resources>

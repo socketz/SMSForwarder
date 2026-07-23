@@ -1,0 +1,16 @@
+.claude/
+
+# Build output
+/build
+/app/build
+.gradle
+local.properties
+.idea/
+*.iml
+.DS_Store
+
+# Signing material — never commit
+*.jks
+*.keystore
+*.jks.b64
+key.properties
