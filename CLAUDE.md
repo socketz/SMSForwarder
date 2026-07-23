@@ -4,10 +4,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-A single-module Android app (Kotlin, View-based UI) that **reads incoming SMS and forwards
-them to an HTTP webhook and a Telegram bot**. For personal use, not published to any store.
-The design goal is a phone left plugged in at home that reliably forwards SMS to the owner
-while they are away.
+A single-module Android app (Kotlin, View-based UI) that **reads incoming SMS and POSTs them
+to the user's own server endpoint**. It is a deliberately **thin client**: it does NOT talk to
+Telegram/email directly — it forwards each SMS as JSON to a **primary endpoint**, falling back
+to a **backup endpoint** if the primary fails, and the server decides where to relay it. This
+keeps the APK simple and means adding channels never requires rebuilding it. For personal use,
+not published to any store. The design goal is a phone left plugged in at home that reliably
+forwards SMS to the owner while they are away.
 
 Comments and user-facing strings are bilingual (English + 中文); code comments are mostly
 Chinese. Match that convention when editing. Build scaffolding and conventions are modeled
@@ -46,11 +49,14 @@ The three concerns are intentionally decoupled:
   process is dead** (it relaunches the app), so capture does not depend on the service being
   alive. The receiver only does fast work — reassemble multipart PDUs per sender, dedup, and
   enqueue — never network I/O (broadcasts have a ~10s limit).
-- **Forward** — `WorkScheduler` enqueues **one `ForwardWorker` per (message × channel)** as
-  unique work, so each channel retries independently. `ForwardWorker` (`CoroutineWorker`)
-  sends via a `Sender` and returns `Result.retry()` with exponential backoff up to
-  `MAX_ATTEMPTS` (5), then `Result.failure()` + a log entry. WorkManager persists the queue
-  and resumes it across process death and reboot.
+- **Forward** — `WorkScheduler` enqueues **one `ForwardWorker` per message** as unique work.
+  `ForwardWorker` (`CoroutineWorker`) does **primary→backup failover**: POST the primary URL
+  via `HttpForwarder.post`; on success, done; on failure, try the backup URL (if set). Only if
+  both fail does it `Result.retry()` with exponential backoff up to `MAX_ATTEMPTS` (5), then
+  `Result.failure()` + a log entry. The log entry's channel field is `primary`/`backup`
+  (`Prefs.CH_PRIMARY/CH_BACKUP`) to show which endpoint delivered. WorkManager persists the
+  queue and resumes it across process death and reboot. There is **no per-channel fan-out** and
+  **no Telegram/email in the app** — the server handles channel routing.
 - **Survival** — `ForwardService`, a `START_STICKY` foreground service (type `specialUse`
   with a `PROPERTY_SPECIAL_USE_FGS_SUBTYPE` justification). It does **not** capture or forward;
   it keeps the process warm, shows the persistent notification, and ensures the periodic
@@ -67,10 +73,10 @@ Supporting pieces:
   compute the same key `sender|bodyHash|minuteBucket`; `seenContains` tolerates ±1 minute
   bucket drift (broadcast uses receipt time, reconcile uses the provider `date`, which differ
   by seconds). The set is bounded to 500 entries.
-- **`Senders`** — `Sender` interface + `HttpSender` (POST JSON, optional custom headers) and
-  `TelegramSender` (`sendMessage`, optional custom API base for reverse-proxy since
-  `api.telegram.org` is blocked in mainland China). Raw `HttpURLConnection`, no networking lib.
-  `senderFor(channel)` maps a channel id to a sender. Must run off the main thread.
+- **`Senders`** — `HttpForwarder.post(url, headers, sms)` POSTs the SMS as JSON to one URL
+  (used for both primary and backup; the failover logic lives in `ForwardWorker`). Optional
+  custom headers (shared by both endpoints), raw `HttpURLConnection`, no networking lib. Must
+  run off the main thread. (`Sms`/`SendResult` data classes live here too.)
 - **`ForwardLog`** — the forward log as a JSON-array string in prefs, newest-first, trimmed to
   a configurable keep count (20–2000). Mirrors NetPulse's `LogStore`.
 - **`MainActivity`** — status, start/stop, runtime permission requests, battery-optimization
@@ -83,9 +89,8 @@ Supporting pieces:
   activity (targetSdk 35+ forces edge-to-edge). Copied from NetPulse.
 
 ### Key prefs keys (the de-facto schema)
-`running`, `http_enabled`, `http_url`, `http_headers`, `tg_enabled`, `tg_token`,
-`tg_chat_id`, `tg_api_base`, `reconcile_enabled`, `reconcile_min`, `last_seen_ts`,
-`forward_log`, `log_keep`, `seen_keys`.
+`running`, `primary_url`, `backup_url`, `http_headers`, `reconcile_enabled`, `reconcile_min`,
+`last_seen_ts`, `forward_log`, `log_keep`, `seen_keys`.
 
 ## Conventions
 

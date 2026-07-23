@@ -76,11 +76,10 @@ class ForwardService : Service() {
         val logs = ForwardLog.all(this)
         val total = logs.size
         val failed = logs.count { !it.ok }
-        val channels = Prefs.enabledChannels(this)
-        val text = if (channels.isEmpty()) {
-            getString(R.string.notif_no_channel)
+        val text = if (!Prefs.isConfigured(this)) {
+            getString(R.string.notif_not_configured)
         } else {
-            getString(R.string.notif_running_fmt, channels.size, total, failed)
+            getString(R.string.notif_running_fmt, total, failed)
         }
         val pi = PendingIntent.getActivity(
             this, 0, Intent(this, MainActivity::class.java), PendingIntent.FLAG_IMMUTABLE

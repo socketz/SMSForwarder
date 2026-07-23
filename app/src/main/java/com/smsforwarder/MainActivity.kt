@@ -163,9 +163,12 @@ class MainActivity : AppCompatActivity() {
         tvStatus.text = getString(if (running) R.string.status_running else R.string.status_stopped)
         btnToggle.text = getString(if (running) R.string.btn_stop else R.string.btn_start)
 
-        val channels = Prefs.enabledChannels(this)
-        tvChannels.text = if (channels.isEmpty()) getString(R.string.channels_none)
-        else getString(R.string.channels_fmt, channels.joinToString(", "))
+        val mark = { on: Boolean -> if (on) getString(R.string.ep_set) else getString(R.string.ep_unset) }
+        tvChannels.text = getString(
+            R.string.endpoints_fmt,
+            mark(Prefs.primaryUrl(this).isNotBlank()),
+            mark(Prefs.backupUrl(this).isNotBlank()),
+        )
 
         tvPerm.text = getString(if (hasAllPerms()) R.string.perm_ok else R.string.perm_missing)
         btnGrantPerm.visibility = if (hasAllPerms()) View.GONE else View.VISIBLE
@@ -193,7 +196,11 @@ class MainActivity : AppCompatActivity() {
             row.findViewById<TextView>(R.id.tvTime).text =
                 DateFormat.format("MM-dd HH:mm:ss", e.time)
             row.findViewById<TextView>(R.id.tvSender).text = e.sender
-            row.findViewById<TextView>(R.id.tvChannel).text = e.channel
+            row.findViewById<TextView>(R.id.tvChannel).text = when (e.channel) {
+                Prefs.CH_PRIMARY -> getString(R.string.log_via_primary)
+                Prefs.CH_BACKUP -> getString(R.string.log_via_backup)
+                else -> e.channel
+            }
             val st = row.findViewById<TextView>(R.id.tvResult)
             if (e.ok) {
                 st.text = getString(R.string.log_ok)

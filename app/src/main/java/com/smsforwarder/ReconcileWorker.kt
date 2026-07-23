@@ -23,7 +23,7 @@ class ReconcileWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(
         ) {
             return@withContext Result.success()  // 没权限就不做，等用户去授权
         }
-        if (Prefs.enabledChannels(ctx).isEmpty()) return@withContext Result.success()
+        if (!Prefs.isConfigured(ctx)) return@withContext Result.success()
 
         val p = Prefs.get(ctx)
         val lastSeen = p.getLong(Prefs.KEY_LAST_SEEN_TS, 0L)

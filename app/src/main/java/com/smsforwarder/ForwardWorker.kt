@@ -7,8 +7,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 /**
- * 把一条短信转发到一个渠道。失败则交给 WorkManager 指数退避重试，
- * 超过最大次数才记为永久失败。每个 (短信 × 渠道) 是一个独立 Worker，互不影响。
+ * 转发一条短信：先发主接口，主接口失败再降级到备用接口。
+ * 两个接口都失败才交给 WorkManager 指数退避重试；超过最大次数记为永久失败。
+ * 每条短信一个 Worker（不再按渠道拆分——渠道分发交给服务器端）。
  */
 class ForwardWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(ctx, params) {
 
@@ -16,36 +17,54 @@ class ForwardWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(ct
         const val K_SENDER = "sender"
         const val K_BODY = "body"
         const val K_TS = "ts"
-        const val K_CHANNEL = "channel"
         private const val MAX_ATTEMPTS = 5
     }
 
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         val ctx = applicationContext
-        val channel = inputData.getString(K_CHANNEL) ?: return@withContext Result.failure()
         val sms = Sms(
             sender = inputData.getString(K_SENDER) ?: "",
             body = inputData.getString(K_BODY) ?: "",
             timestamp = inputData.getLong(K_TS, System.currentTimeMillis()),
         )
 
-        val sender = senderFor(channel) ?: return@withContext Result.failure()
+        val primary = Prefs.primaryUrl(ctx)
+        val backup = Prefs.backupUrl(ctx)
+        val headers = Prefs.headers(ctx)
+        if (primary.isBlank()) return@withContext Result.failure()  // 没配主接口，无处可发
 
-        val result = sender.send(ctx, sms)
-        if (result.ok) {
-            ForwardLog.append(ctx, LogEntry(System.currentTimeMillis(), sms.sender, channel, true, result.detail))
+        // 1) 主接口
+        val r1 = HttpForwarder.post(primary, headers, sms)
+        if (r1.ok) {
+            ForwardLog.append(ctx, LogEntry(now(), sms.sender, Prefs.CH_PRIMARY, true, r1.detail))
             return@withContext Result.success()
         }
 
-        // 失败：还有重试机会就退避重试，否则记为永久失败
-        if (runAttemptCount + 1 < MAX_ATTEMPTS) {
+        // 2) 主接口挂了 → 降级到备用接口
+        if (backup.isNotBlank()) {
+            val r2 = HttpForwarder.post(backup, headers, sms)
+            if (r2.ok) {
+                ForwardLog.append(
+                    ctx,
+                    LogEntry(now(), sms.sender, Prefs.CH_BACKUP, true, "主接口失败(${r1.detail})，已降级备用")
+                )
+                return@withContext Result.success()
+            }
+            return@withContext retryOrFail(ctx, sms, "主(${r1.detail}) / 备(${r2.detail}) 均失败")
+        }
+
+        // 只配了主接口且失败
+        retryOrFail(ctx, sms, "主接口失败: ${r1.detail}")
+    }
+
+    private fun retryOrFail(ctx: Context, sms: Sms, detail: String): Result {
+        return if (runAttemptCount + 1 < MAX_ATTEMPTS) {
             Result.retry()
         } else {
-            ForwardLog.append(
-                ctx,
-                LogEntry(System.currentTimeMillis(), sms.sender, channel, false, "重试${MAX_ATTEMPTS}次仍失败: ${result.detail}")
-            )
+            ForwardLog.append(ctx, LogEntry(now(), sms.sender, Prefs.CH_PRIMARY, false, "重试${MAX_ATTEMPTS}次仍失败: $detail"))
             Result.failure()
         }
     }
+
+    private fun now() = System.currentTimeMillis()
 }

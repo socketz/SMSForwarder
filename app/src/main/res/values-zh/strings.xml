@@ -5,14 +5,15 @@
     <!-- 通知 -->
     <string name="notif_channel_name">转发状态</string>
     <string name="notif_channel_desc">短信转发服务的常驻状态</string>
-    <string name="notif_no_channel">未配置渠道 — 打开 App 去设置</string>
-    <string name="notif_running_fmt">启用 %1$d 渠道 · 已转发 %2$d · 失败 %3$d</string>
+    <string name="notif_not_configured">未配置接口 — 打开 App 去设置</string>
+    <string name="notif_running_fmt">已转发 %1$d · 失败 %2$d</string>
 
     <!-- 主界面 -->
     <string name="status_running">运行中</string>
     <string name="status_stopped">已停止</string>
-    <string name="channels_none">未启用任何转发渠道</string>
-    <string name="channels_fmt">渠道：%1$s</string>
+    <string name="endpoints_fmt">主接口：%1$s · 备用：%2$s</string>
+    <string name="ep_set">已配置</string>
+    <string name="ep_unset">未配置</string>
     <string name="btn_start">启动服务</string>
     <string name="btn_stop">停止服务</string>
 
@@ -36,20 +37,21 @@
     <string name="log_empty">还没有转发记录</string>
     <string name="log_ok">成功</string>
     <string name="log_fail">失败</string>
+    <string name="log_via_primary">主接口</string>
+    <string name="log_via_backup">备用</string>
 
     <string name="toast_need_perm">请先授予短信和通知权限</string>
 
     <!-- 设置 -->
     <string name="btn_back">返回</string>
     <string name="btn_save">保存</string>
-    <string name="btn_test">发送测试</string>
-    <string name="cfg_http_enable">启用 HTTP webhook</string>
-    <string name="cfg_http_url">Webhook 地址（JSON POST）</string>
-    <string name="cfg_http_headers">自定义请求头（每行一个 \"Key: Value\"，可选）</string>
-    <string name="cfg_tg_enable">启用 Telegram Bot</string>
-    <string name="cfg_tg_token">Bot Token</string>
-    <string name="cfg_tg_chat">Chat ID</string>
-    <string name="cfg_tg_api">API 地址（可选，用于反向代理）</string>
+    <string name="cfg_endpoints_title">转发接口</string>
+    <string name="cfg_endpoints_desc">每条短信以 JSON POST 到主接口；主接口失败则降级到备用接口。再转发到 Telegram / 邮件等由你的服务器决定。</string>
+    <string name="cfg_primary_url">主接口 URL</string>
+    <string name="cfg_backup_url">备用接口 URL（可选）</string>
+    <string name="cfg_http_headers">自定义请求头，主备共用（每行一个 \"Key: Value\"，可选）</string>
+    <string name="btn_test_primary">测试主接口</string>
+    <string name="btn_test_backup">测试备用</string>
     <string name="cfg_reconcile_enable">周期性对账（兜底补发）</string>
     <string name="cfg_reconcile_desc">定期扫描短信收件箱，补发被实时广播漏掉的短信。需要读取短信权限。</string>
     <string name="cfg_reconcile_min">间隔（分钟，最少 15）</string>
@@ -59,9 +61,10 @@
     <string name="toast_testing">正在发送测试…</string>
     <string name="toast_test_ok">测试发送成功</string>
     <string name="toast_test_fail">测试失败：%1$s</string>
+    <string name="toast_url_empty">请先填写 URL</string>
     <string name="test_body">这是一条来自「短信转发」的测试消息</string>
 
     <!-- 关于 -->
     <string name="about_version">版本 %1$s</string>
-    <string name="about_body">读取收到的短信，转发到你的 HTTP 接口和 Telegram 机器人。\n\n捕获：实时短信广播接收器（即使 App 进程已被杀，系统也会拉起它来送广播），另加可选的周期性对账补发漏掉的短信。\n\n转发：与捕获完全解耦。每条短信入队到 WorkManager，独立发往每个已启用渠道，失败按指数退避重试，且能跨进程被杀与重启恢复。\n\n存活：常驻前台服务 + 开机自启 + 电池优化豁免 + 厂商自启动白名单，共同保证长期运行。\n\n供个人使用，不上架任何应用商店。</string>
+    <string name="about_body">读取收到的短信，转发到你自己的服务器接口。App 刻意保持轻量：不直接对接 Telegram 或邮件，只是把每条短信以 JSON POST 到主接口，主接口失败则降级到备用接口。再往哪儿转发（Telegram、邮件或其他）全由你的服务器决定，所以加渠道永远不用重新编译 App。\n\n捕获：实时短信广播接收器（即使 App 进程已被杀，系统也会拉起它来送广播），另加可选的周期性对账补发漏掉的短信。\n\n转发：与捕获完全解耦。每条短信入队到 WorkManager，失败按指数退避重试，且能跨进程被杀与重启恢复。\n\n存活：常驻前台服务 + 开机自启 + 电池优化豁免 + 厂商自启动白名单，共同保证长期运行。\n\n供个人使用，不上架任何应用商店。</string>
 </resources>
