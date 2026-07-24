@@ -21,10 +21,16 @@ object SmsScanner {
         // 记录本次轮询时刻（供运行日志显示"上次/下次轮询"）
         Prefs.get(ctx).edit().putLong(Prefs.KEY_LAST_POLL_TS, System.currentTimeMillis()).apply()
 
-        if (!Prefs.isLoggedIn(ctx)) return
+        if (!Prefs.isLoggedIn(ctx)) {
+            DebugLog.log(ctx, "轮询跳过：未登录")
+            return
+        }
         if (ContextCompat.checkSelfPermission(ctx, Manifest.permission.READ_SMS)
             != PackageManager.PERMISSION_GRANTED
-        ) return
+        ) {
+            DebugLog.log(ctx, "轮询跳过：无读取短信权限(READ_SMS)")
+            return
+        }
 
         val p = Prefs.get(ctx)
         val lastSeen = p.getLong(Prefs.KEY_LAST_SEEN_TS, 0L)
@@ -76,9 +82,7 @@ object SmsScanner {
                 }
             }
             p.edit().putLong(Prefs.KEY_LAST_SEEN_TS, cursor).apply()
-            if (found > 0 || transient > 0) {
-                DebugLog.log(ctx, "轮询：新增 $found｜成功 $ok｜失败(永久) $permFail｜失败(重试) $transient")
-            }
+            DebugLog.log(ctx, "轮询：新增 $found｜成功 $ok｜失败(永久) $permFail｜失败(重试) $transient")
         } catch (e: Exception) {
             DebugLog.log(ctx, "读短信库异常：${e.message}")
         }

@@ -1,17 +1,27 @@
 package com.smsforwarder
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.format.DateFormat
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 
-/** 运行日志界面：显示服务状态/上次轮询/游标 + 最近的内部动作（最多 300 条）。 */
+/** 运行日志界面：显示服务状态/上次轮询/游标 + 最近的内部动作（最多 300 条）。每 2s 自动刷新。 */
 class DebugLogActivity : AppCompatActivity() {
 
     private lateinit var tvHeader: TextView
     private lateinit var llLog: LinearLayout
+
+    private val handler = Handler(Looper.getMainLooper())
+    private val ticker = object : Runnable {
+        override fun run() {
+            render()
+            handler.postDelayed(this, 2000)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,7 +35,12 @@ class DebugLogActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        render()
+        handler.post(ticker) // 每 2s 自动刷新
+    }
+
+    override fun onPause() {
+        super.onPause()
+        handler.removeCallbacks(ticker)
     }
 
     private fun fmt(t: Long) = if (t <= 0) "—" else DateFormat.format("MM-dd HH:mm:ss", t).toString()
