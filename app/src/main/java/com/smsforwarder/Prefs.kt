@@ -27,7 +27,8 @@ object Prefs {
     // 兜底对账
     const val KEY_RECONCILE_ENABLED = "reconcile_enabled"
     const val KEY_RECONCILE_MIN = "reconcile_min"
-    const val KEY_LAST_SEEN_TS = "last_seen_ts"
+    const val KEY_LAST_SEEN_TS = "last_seen_ts" // 旧的时间戳游标(已弃用，保留避免迁移问题)
+    const val KEY_LAST_SEEN_ID = "last_seen_id" // 新游标：短信库自增 _id，单调、不受时间戳影响
 
     // 前台服务轮询短信库的间隔（秒）+ 上次轮询时刻（供运行日志显示）
     const val KEY_POLL_SEC = "poll_sec"

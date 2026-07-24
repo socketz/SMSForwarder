@@ -165,23 +165,26 @@ class SettingsActivity : AppCompatActivity() {
         Thread {
             val hasRead = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_SMS) ==
                 PackageManager.PERMISSION_GRANTED
-            val cursor = Prefs.get(this).getLong(Prefs.KEY_LAST_SEEN_TS, 0L)
+            val cursorId = Prefs.get(this).getLong(Prefs.KEY_LAST_SEEN_ID, -1L)
             val sb = StringBuilder()
             sb.append("READ_SMS: ").append(if (hasRead) "已授予" else "未授予 ✗").append('\n')
-            sb.append("游标: ").append(if (cursor == 0L) "未初始化" else DateFormat.format("MM-dd HH:mm:ss", cursor)).append('\n')
-            var newest = 0L
+            sb.append("游标(id): ").append(if (cursorId < 0) "未初始化" else cursorId.toString()).append('\n')
+            var newestId = -1L
             var count = 0
             if (hasRead) {
                 try {
                     var newestAddr = ""
+                    var newestDate = 0L
                     contentResolver.query(
-                        Uri.parse("content://sms/inbox"), arrayOf("address", "date"), null, null, "date DESC"
+                        Uri.parse("content://sms/inbox"), arrayOf("_id", "address", "date"), null, null, "_id DESC"
                     )?.use { c ->
+                        val ii = c.getColumnIndex("_id")
                         val ia = c.getColumnIndex("address"); val idt = c.getColumnIndex("date")
                         while (c.moveToNext()) {
                             count++
                             if (count == 1) {
-                                newest = if (idt >= 0) c.getLong(idt) else 0L
+                                newestId = if (ii >= 0) c.getLong(ii) else -1L
+                                newestDate = if (idt >= 0) c.getLong(idt) else 0L
                                 newestAddr = if (ia >= 0) c.getString(ia) ?: "" else ""
                             }
                         }
@@ -189,8 +192,9 @@ class SettingsActivity : AppCompatActivity() {
                     sb.append("短信库读到: ").append(count).append(" 条\n")
                     if (count > 0) {
                         sb.append("最新: ").append(newestAddr).append(" @ ")
-                            .append(DateFormat.format("MM-dd HH:mm:ss", newest)).append('\n')
-                        sb.append(if (cursor in 1 until newest) "→ 最新在游标之后，应能抓到" else "→ 最新<=游标，会被跳过(点重置)")
+                            .append(DateFormat.format("MM-dd HH:mm:ss", newestDate))
+                            .append(" (id=").append(newestId).append(")\n")
+                        sb.append(if (cursorId in 0 until newestId) "→ 最新 id 在游标之后，应能抓到" else "→ 最新 id<=游标，会被跳过(点重置)")
                     } else {
                         sb.append("→ 读不到内容：HarmonyOS 可能没把短信写入标准库/拦截了读取 → 需改用「默认短信应用」")
                     }
@@ -198,14 +202,13 @@ class SettingsActivity : AppCompatActivity() {
                     sb.append("读取抛异常: ").append(e.message).append("\n→ 库被拦，需改用「默认短信应用」")
                 }
             }
-            val newestForReset = newest
+            val resetTo = if (newestId > 0) newestId - 1 else -1L
             runOnUiThread {
                 AlertDialog.Builder(this)
                     .setTitle(R.string.btn_diag_sms)
                     .setMessage(sb.toString())
                     .setPositiveButton("重置游标并拉取") { _, _ ->
-                        val back = if (newestForReset > 0) newestForReset - 60_000 else System.currentTimeMillis() - 3_600_000
-                        Prefs.get(this).edit().putLong(Prefs.KEY_LAST_SEEN_TS, back).apply()
+                        Prefs.get(this).edit().putLong(Prefs.KEY_LAST_SEEN_ID, resetTo).apply()
                         Thread { SmsScanner.scan(this) }.start()
                         Toast.makeText(this, "已重置游标并拉取，回主界面看最近上传", Toast.LENGTH_LONG).show()
                     }

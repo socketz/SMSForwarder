@@ -48,11 +48,11 @@ class DebugLogActivity : AppCompatActivity() {
     private fun render() {
         val running = Prefs.isRunning(this)
         val lastPoll = Prefs.get(this).getLong(Prefs.KEY_LAST_POLL_TS, 0L)
-        val cursor = Prefs.get(this).getLong(Prefs.KEY_LAST_SEEN_TS, 0L)
+        val cursorId = Prefs.get(this).getLong(Prefs.KEY_LAST_SEEN_ID, -1L)
         val interval = Prefs.pollSeconds(this)
         tvHeader.text = "服务：${if (running) "运行中" else "已停止"}\n" +
             "上次轮询：${fmt(lastPoll)}  ·  间隔：${interval}s\n" +
-            "短信游标：${fmt(cursor)}"
+            "短信游标(id)：${if (cursorId < 0) "未初始化" else cursorId.toString()}"
 
         llLog.removeAllViews()
         val logs = DebugLog.all(this)
