@@ -151,11 +151,14 @@ class MainActivity : AppCompatActivity() {
             .setTitle(R.string.logout_title)
             .setMessage(R.string.logout_msg)
             .setPositiveButton(R.string.logout) { _, _ ->
-                Thread { Api.logout(this) }.start()
+                // 先抓住当前 token，再清本地会话，最后用抓住的 token 去后端吊销这台设备，
+                // 避免"清除会话"与"发吊销请求读 token"之间的竞态（否则可能带空 token → 401 → 没吊销）。
+                val tok = Prefs.token(this)
                 Prefs.get(this).edit().putBoolean(Prefs.KEY_RUNNING, false).apply()
                 stopService(Intent(this, ForwardService::class.java))
                 Prefs.clearSession(this)
                 refresh()
+                Thread { Api.logout(this, tok) }.start()
             }
             .setNegativeButton(android.R.string.cancel, null)
             .show()

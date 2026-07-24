@@ -35,8 +35,9 @@ object Api {
             JSONObject().put("username", username).put("password", password).put("device_label", deviceLabel),
             auth = false)
 
-    fun logout(ctx: Context): ApiResp =
-        request(ctx, "POST", "/api/logout", null, auth = true)
+    /** token 传入时用它鉴权（退出登录场景：本地会话可能已清空，用捕获的旧 token 吊销） */
+    fun logout(ctx: Context, token: String? = null): ApiResp =
+        request(ctx, "POST", "/api/logout", null, auth = true, authToken = token)
 
     // ---- 渠道 ----
 
@@ -76,7 +77,7 @@ object Api {
 
     // ---- 核心请求 ----
 
-    private fun request(ctx: Context, method: String, path: String, body: JSONObject?, auth: Boolean): ApiResp {
+    private fun request(ctx: Context, method: String, path: String, body: JSONObject?, auth: Boolean, authToken: String? = null): ApiResp {
         val url = Prefs.baseUrl(ctx).trimEnd('/') + path
         return try {
             val conn = (URL(url).openConnection() as HttpURLConnection).apply {
@@ -85,7 +86,7 @@ object Api {
                 requestMethod = method
                 useCaches = false
                 setRequestProperty("Accept", "application/json")
-                if (auth) setRequestProperty("Authorization", "Bearer " + Prefs.token(ctx))
+                if (auth) setRequestProperty("Authorization", "Bearer " + (authToken ?: Prefs.token(ctx)))
                 if (body != null) {
                     doOutput = true
                     setRequestProperty("Content-Type", "application/json; charset=utf-8")
