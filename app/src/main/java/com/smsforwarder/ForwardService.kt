@@ -19,6 +19,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * 常驻前台服务。它本身不负责捕获或转发（那两条路径分别由广播和 WorkManager 独立完成），
@@ -104,14 +105,18 @@ class ForwardService : Service() {
         player = null
     }
 
-    /** 每 30s 刷新一次通知里的转发计数，并保证对账任务在位 */
+    /**
+     * 心跳循环：每 ~15s 轮询一次短信库抓新短信(华为等不下发广播时的主力抓取)，
+     * 并刷新通知里的计数。轮询走 IO 线程。
+     */
     private fun startHeartbeat() {
         loop?.cancel()
         loop = scope.launch {
             while (isActive) {
+                withContext(Dispatchers.IO) { SmsScanner.scan(applicationContext) }
                 val mgr = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
                 mgr.notify(NOTIF_ID, buildNotification())
-                delay(30_000)
+                delay(15_000)
             }
         }
     }
