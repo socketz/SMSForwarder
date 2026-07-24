@@ -175,17 +175,20 @@ class SettingsActivity : AppCompatActivity() {
                 try {
                     var newestAddr = ""
                     var newestDate = 0L
+                    var newestBodyLen = -1
                     contentResolver.query(
-                        Uri.parse("content://sms/inbox"), arrayOf("_id", "address", "date"), null, null, "_id DESC"
+                        Uri.parse("content://sms/inbox"), arrayOf("_id", "address", "date", "body"), null, null, "_id DESC"
                     )?.use { c ->
                         val ii = c.getColumnIndex("_id")
                         val ia = c.getColumnIndex("address"); val idt = c.getColumnIndex("date")
+                        val ib = c.getColumnIndex("body")
                         while (c.moveToNext()) {
                             count++
                             if (count == 1) {
                                 newestId = if (ii >= 0) c.getLong(ii) else -1L
                                 newestDate = if (idt >= 0) c.getLong(idt) else 0L
                                 newestAddr = if (ia >= 0) c.getString(ia) ?: "" else ""
+                                newestBodyLen = if (ib >= 0) (c.getString(ib) ?: "").length else -1
                             }
                         }
                     }
@@ -194,6 +197,7 @@ class SettingsActivity : AppCompatActivity() {
                         sb.append("最新: ").append(newestAddr).append(" @ ")
                             .append(DateFormat.format("MM-dd HH:mm:ss", newestDate))
                             .append(" (id=").append(newestId).append(")\n")
+                        sb.append("正文长度: ").append(if (newestBodyLen < 0) "读不到 body 列" else newestBodyLen.toString()).append('\n')
                         sb.append(if (cursorId in 0 until newestId) "→ 最新 id 在游标之后，应能抓到" else "→ 最新 id<=游标，会被跳过(点重置)")
                     } else {
                         sb.append("→ 读不到内容：HarmonyOS 可能没把短信写入标准库/拦截了读取 → 需改用「默认短信应用」")

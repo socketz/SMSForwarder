@@ -47,6 +47,9 @@ object SmsScanner {
         }
 
         var newId = lastId
+        var rows = 0
+        var skippedBlank = 0
+        var skippedSeen = 0
         var found = 0
         var ok = 0
         var permFail = 0
@@ -66,9 +69,10 @@ object SmsScanner {
                     val sender = if (idxAddr >= 0) c.getString(idxAddr) ?: "" else ""
                     val body = if (idxBody >= 0) c.getString(idxBody) ?: "" else ""
                     val date = if (idxDate >= 0) c.getLong(idxDate) else System.currentTimeMillis()
+                    rows++
 
-                    if (body.isBlank()) { newId = id; continue }
-                    if (Prefs.seenContains(ctx, sender, body, date)) { newId = id; continue }
+                    if (body.isBlank()) { skippedBlank++; newId = id; continue }
+                    if (Prefs.seenContains(ctx, sender, body, date)) { skippedSeen++; newId = id; continue }
 
                     found++
                     when (Uploader.uploadDirect(ctx, Sms(sender, body, date))) {
@@ -87,7 +91,10 @@ object SmsScanner {
                 }
             }
             p.edit().putLong(Prefs.KEY_LAST_SEEN_ID, newId).apply()
-            DebugLog.log(ctx, "轮询：新增 $found｜成功 $ok｜失败(永久) $permFail｜失败(重试) $transient")
+            DebugLog.log(
+                ctx,
+                "轮询：读到 $rows 行｜空 $skippedBlank｜已见 $skippedSeen｜发 $found(成功$ok/永久$permFail/重试$transient)"
+            )
         } catch (e: Exception) {
             DebugLog.log(ctx, "读短信库异常：${e.message}")
         }
