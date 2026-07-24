@@ -58,19 +58,13 @@
 
     <!-- Channels -->
     <string name="ch_add_telegram">+ Telegram</string>
-    <string name="ch_add_wechat">+ WeChat</string>
     <string name="ch_telegram">Telegram</string>
-    <string name="ch_wechat">WeChat (PushPlus)</string>
     <string name="ch_ready">✓ ready</string>
     <string name="ch_tg_unbound">not bound — tap Bind</string>
-    <string name="ch_not_ready">not configured</string>
-    <string name="ch_empty">No channels yet. Add Telegram or WeChat above.</string>
+    <string name="ch_empty">No channels yet. Add Telegram above.</string>
     <string name="ch_load_fail_fmt">Failed to load: %1$s</string>
     <string name="ch_op_fail_fmt">Failed: %1$s</string>
     <string name="ch_added_tg">Telegram channel added — tap Bind to connect it.</string>
-    <string name="ch_wechat_token_hint">PushPlus token</string>
-    <string name="ch_wechat_help">Get a token at PushPlus (pushplus.plus): scan the QR with WeChat, follow the official account, then copy your token here.</string>
-    <string name="ch_wechat_token_empty">Enter the token first</string>
     <string name="ch_bind">Bind</string>
     <string name="ch_bind_fail">Could not get a bind link</string>
     <string name="ch_bind_open_tg">Opening Telegram — tap Start to finish binding, then come back.</string>
@@ -96,5 +90,5 @@
 
     <!-- About -->
     <string name="about_version">Version %1$s</string>
-    <string name="about_body">Reads incoming SMS and uploads them to your account on the SMS Forwarder backend, which forwards each message to the channels you configured (Telegram / WeChat).\n\nSign in once on this phone; the device stays signed in. Configure channels in the app — they are stored on the server and tied to your account, so messages are never delivered to the wrong user.\n\nCapture: a real-time SMS broadcast receiver (works even when the app process has been killed), plus an optional periodic reconciliation that re-uploads anything missed. Upload is queued via WorkManager and retried until it succeeds, surviving process death and reboot.\n\nSurvival: a persistent foreground service, auto-restart on boot, battery-optimization exemption, and OEM auto-start whitelisting keep it running long-term.\n\nFor personal use.</string>
+    <string name="about_body">Reads incoming SMS and uploads them to your account on the SMS Forwarder backend, which forwards each message to the channels you configured (Telegram).\n\nSign in once on this phone; the device stays signed in. Configure channels in the app — they are stored on the server and tied to your account, so messages are never delivered to the wrong user.\n\nCapture: a real-time SMS broadcast receiver (works even when the app process has been killed), plus an optional periodic reconciliation that re-uploads anything missed. Upload is queued via WorkManager and retried until it succeeds, surviving process death and reboot.\n\nSurvival: a persistent foreground service, auto-restart on boot, battery-optimization exemption, and OEM auto-start whitelisting keep it running long-term.\n\nFor personal use.</string>
 </resources>

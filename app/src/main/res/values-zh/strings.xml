@@ -58,19 +58,13 @@
 
     <!-- 渠道 -->
     <string name="ch_add_telegram">+ Telegram</string>
-    <string name="ch_add_wechat">+ 微信</string>
     <string name="ch_telegram">Telegram</string>
-    <string name="ch_wechat">微信 (PushPlus)</string>
     <string name="ch_ready">✓ 已就绪</string>
     <string name="ch_tg_unbound">未绑定 — 点「绑定」</string>
-    <string name="ch_not_ready">未配置</string>
-    <string name="ch_empty">还没有渠道。点上方添加 Telegram 或微信。</string>
+    <string name="ch_empty">还没有渠道。点上方添加 Telegram。</string>
     <string name="ch_load_fail_fmt">加载失败：%1$s</string>
     <string name="ch_op_fail_fmt">失败：%1$s</string>
     <string name="ch_added_tg">已添加 Telegram 渠道 — 点「绑定」完成关联。</string>
-    <string name="ch_wechat_token_hint">PushPlus token</string>
-    <string name="ch_wechat_help">去 PushPlus（pushplus.plus）用微信扫码、关注公众号，然后把你的 token 复制到这里。</string>
-    <string name="ch_wechat_token_empty">请先填写 token</string>
     <string name="ch_bind">绑定</string>
     <string name="ch_bind_fail">未能获取绑定链接</string>
     <string name="ch_bind_open_tg">正在打开 Telegram — 点 Start 完成绑定后返回。</string>
@@ -96,5 +90,5 @@
 
     <!-- 关于 -->
     <string name="about_version">版本 %1$s</string>
-    <string name="about_body">读取收到的短信，上传到你在「短信转发」后端的账号；后端再按你配置的渠道（Telegram / 微信）转发。\n\n本机登录一次即长期保持登录。渠道在 App 里配置、存在服务端并与你的账号绑定，消息绝不会发错人。\n\n捕获：实时短信广播接收器（即使进程被杀也会被系统拉起），另加可选的周期性对账补传漏掉的短信。上传经 WorkManager 排队并一直重试到成功，跨进程被杀与重启恢复。\n\n存活：常驻前台服务 + 开机自启 + 电池优化豁免 + 厂商自启动白名单，共同保证长期运行。\n\n供个人使用。</string>
+    <string name="about_body">读取收到的短信，上传到你在「短信转发」后端的账号；后端再按你配置的渠道（Telegram）转发。\n\n本机登录一次即长期保持登录。渠道在 App 里配置、存在服务端并与你的账号绑定，消息绝不会发错人。\n\n捕获：实时短信广播接收器（即使进程被杀也会被系统拉起），另加可选的周期性对账补传漏掉的短信。上传经 WorkManager 排队并一直重试到成功，跨进程被杀与重启恢复。\n\n存活：常驻前台服务 + 开机自启 + 电池优化豁免 + 厂商自启动白名单，共同保证长期运行。\n\n供个人使用。</string>
 </resources>

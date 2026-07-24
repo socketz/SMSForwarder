@@ -6,7 +6,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.widget.Button
-import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -17,7 +16,7 @@ import org.json.JSONObject
 
 /**
  * 渠道管理。全部通过后端 API：列出/新增/启用停用/测试/删除，以及 Telegram 一键绑定。
- * 每种渠道在手机上只填最少信息（微信填 PushPlus token；Telegram 点绑定，什么都不填）。
+ * v1 只有 Telegram 渠道（Telegram 点绑定，什么都不填）。
  */
 class ChannelsActivity : AppCompatActivity() {
 
@@ -34,7 +33,6 @@ class ChannelsActivity : AppCompatActivity() {
 
         findViewById<Button>(R.id.btnBack).setOnClickListener { finish() }
         findViewById<Button>(R.id.btnAddTelegram).setOnClickListener { addTelegram() }
-        findViewById<Button>(R.id.btnAddWechat).setOnClickListener { addWechat() }
     }
 
     override fun onResume() {
@@ -82,6 +80,7 @@ class ChannelsActivity : AppCompatActivity() {
         val type = c.optString("type")
         val enabled = c.optBoolean("enabled")
         val ready = c.optBoolean("ready")
+        val isTelegram = type == "telegram"
 
         val row = inflater.inflate(R.layout.item_channel, llChannels, false)
         val tvType = row.findViewById<TextView>(R.id.tvChannelType)
@@ -91,13 +90,8 @@ class ChannelsActivity : AppCompatActivity() {
         val btnTest = row.findViewById<Button>(R.id.btnTest)
         val btnDelete = row.findViewById<Button>(R.id.btnDelete)
 
-        val isTelegram = type == "telegram"
-        tvType.text = if (isTelegram) getString(R.string.ch_telegram) else getString(R.string.ch_wechat)
-        tvState.text = when {
-            ready -> getString(R.string.ch_ready)
-            isTelegram -> getString(R.string.ch_tg_unbound)
-            else -> getString(R.string.ch_not_ready)
-        }
+        tvType.text = if (isTelegram) getString(R.string.ch_telegram) else type
+        tvState.text = if (ready) getString(R.string.ch_ready) else getString(R.string.ch_tg_unbound)
         tvState.setTextColor(if (ready) 0xFF00E676.toInt() else 0xFFFFA726.toInt())
 
         sw.isChecked = enabled
@@ -131,30 +125,6 @@ class ChannelsActivity : AppCompatActivity() {
         }
     }
 
-    private fun addWechat() {
-        val et = EditText(this).apply { hint = getString(R.string.ch_wechat_token_hint) }
-        AlertDialog.Builder(this)
-            .setTitle(R.string.ch_add_wechat)
-            .setMessage(R.string.ch_wechat_help)
-            .setView(et)
-            .setPositiveButton(R.string.btn_save) { _, _ ->
-                val token = et.text.toString().trim()
-                if (token.isEmpty()) {
-                    Toast.makeText(this, R.string.ch_wechat_token_empty, Toast.LENGTH_SHORT).show()
-                    return@setPositiveButton
-                }
-                val cfg = JSONObject().put("token", token)
-                call({ Api.createChannel(this, "wechat", cfg, true) }) { r ->
-                    when (r) {
-                        is ApiResp.Ok -> loadChannels()
-                        is ApiResp.Err -> Toast.makeText(this, getString(R.string.ch_op_fail_fmt, r.message), Toast.LENGTH_LONG).show()
-                    }
-                }
-            }
-            .setNegativeButton(android.R.string.cancel, null)
-            .show()
-    }
-
     private fun bindTelegram(id: Long) {
         call({ Api.bindCode(this, id) }) { r ->
             when (r) {
@@ -168,7 +138,6 @@ class ChannelsActivity : AppCompatActivity() {
                         startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(deeplink)))
                         Toast.makeText(this, R.string.ch_bind_open_tg, Toast.LENGTH_LONG).show()
                     } catch (_: ActivityNotFoundException) {
-                        // 没装 Telegram：把链接给用户
                         AlertDialog.Builder(this)
                             .setTitle(R.string.ch_bind_no_tg)
                             .setMessage(deeplink)
@@ -186,8 +155,7 @@ class ChannelsActivity : AppCompatActivity() {
         call({ Api.testChannel(this, id) }) { r ->
             when (r) {
                 is ApiResp.Ok -> {
-                    val ok = r.body.optBoolean("ok", false)
-                    if (ok) {
+                    if (r.body.optBoolean("ok", false)) {
                         Toast.makeText(this, R.string.ch_test_ok, Toast.LENGTH_LONG).show()
                     } else {
                         Toast.makeText(this, getString(R.string.ch_test_fail_fmt, r.body.optString("detail")), Toast.LENGTH_LONG).show()
