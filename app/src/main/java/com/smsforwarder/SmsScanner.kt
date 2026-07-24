@@ -47,7 +47,6 @@ object SmsScanner {
         }
 
         var newId = lastId
-        var rows = 0
         var skippedBlank = 0
         var found = 0
         var ok = 0
@@ -68,7 +67,6 @@ object SmsScanner {
                     val sender = if (idxAddr >= 0) c.getString(idxAddr) ?: "" else ""
                     val body = if (idxBody >= 0) c.getString(idxBody) ?: "" else ""
                     val date = if (idxDate >= 0) c.getLong(idxDate) else System.currentTimeMillis()
-                    rows++
 
                     if (body.isBlank()) { skippedBlank++; newId = id; continue }
 
@@ -87,10 +85,14 @@ object SmsScanner {
                 }
             }
             p.edit().putLong(Prefs.KEY_LAST_SEEN_ID, newId).apply()
-            DebugLog.log(
-                ctx,
-                "轮询：读到 $rows 行｜空 $skippedBlank｜发 $found(成功$ok/永久$permFail/重试$transient)"
-            )
+            // 只记"有事发生"的轮询，空轮询不记(是否在跑看顶部"上次轮询"时间)
+            if (found > 0 || transient > 0) {
+                DebugLog.log(
+                    ctx,
+                    "轮询：发 $found(成功$ok/永久$permFail/重试$transient)" +
+                        if (skippedBlank > 0) "｜空正文$skippedBlank" else ""
+                )
+            }
         } catch (e: Exception) {
             DebugLog.log(ctx, "读短信库异常：${e.message}")
         }
