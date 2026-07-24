@@ -1,10 +1,14 @@
 package com.smsforwarder
 
 import android.Manifest
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.PowerManager
+import android.provider.Settings
 import android.text.format.DateFormat
 import android.view.LayoutInflater
 import android.widget.Button
@@ -17,7 +21,8 @@ import androidx.core.content.ContextCompat
 
 /**
  * 主界面 = 三步引导：① 登录/注册 → ② 绑定 Telegram → ③ 开启服务。每步完成打 ✓。
- * 保活（权限/电池/自启动）与关于都收进右上角「设置」，保持主页干净。
+ * 开启服务时会自动申请短信/通知权限，并自动弹电池优化豁免（都不用进设置）。
+ * 保活细项/关于/语言都在右上角「设置」里。
  */
 class MainActivity : AppCompatActivity() {
 
@@ -31,6 +36,9 @@ class MainActivity : AppCompatActivity() {
 
     private val green = 0xFF00E676.toInt()
     private val grey = 0xFF888888.toInt()
+
+    /** 用户点了「开启服务」但还缺权限，授权回来后继续启动 */
+    private var pendingStart = false
 
     private val requiredPerms: Array<String>
         get() = buildList {
@@ -69,6 +77,11 @@ class MainActivity : AppCompatActivity() {
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (pendingStart) {
+            pendingStart = false
+            if (hasAllPerms()) startServiceNow()
+            else Toast.makeText(this, R.string.toast_need_perm, Toast.LENGTH_LONG).show()
+        }
         refresh()
     }
 
@@ -76,11 +89,15 @@ class MainActivity : AppCompatActivity() {
         ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED
     }
 
+    private fun isIgnoringBattery(): Boolean {
+        val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
+        return pm.isIgnoringBatteryOptimizations(packageName)
+    }
+
     private fun refresh() {
         val loggedIn = Prefs.isLoggedIn(this)
         val running = Prefs.isRunning(this)
 
-        // ① 登录
         if (loggedIn) {
             setStep(tvStep1, true, getString(R.string.step1_done_fmt, Prefs.username(this)))
             btnStep1.text = getString(R.string.btn_logout)
@@ -89,11 +106,9 @@ class MainActivity : AppCompatActivity() {
             btnStep1.text = getString(R.string.btn_login)
         }
 
-        // ③ 服务
         setStep(tvStep3, running, getString(if (running) R.string.step3_running else R.string.step3_stopped))
         btnToggle.text = getString(if (running) R.string.btn_stop else R.string.btn_start)
 
-        // ② 绑定 Telegram（需登录后向后端查询是否有已就绪的渠道）
         btnStep2.isEnabled = loggedIn
         if (!loggedIn) {
             setStep(tvStep2, false, getString(R.string.step2_need_login))
@@ -105,7 +120,6 @@ class MainActivity : AppCompatActivity() {
         renderLog()
     }
 
-    /** 向后端查是否已有"就绪(已绑定)"的渠道，异步更新第 2 步状态 */
     private fun checkStep2() {
         Thread {
             val ready = when (val r = Api.listChannels(this)) {
@@ -154,18 +168,33 @@ class MainActivity : AppCompatActivity() {
         if (Prefs.isRunning(this)) {
             Prefs.get(this).edit().putBoolean(Prefs.KEY_RUNNING, false).apply()
             stopService(Intent(this, ForwardService::class.java))
-        } else {
-            if (!hasAllPerms()) {
-                Toast.makeText(this, R.string.toast_need_perm, Toast.LENGTH_LONG).show()
-                requestPermissions(requiredPerms, 100)
-                return
-            }
-            val svc = Intent(this, ForwardService::class.java)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) startForegroundService(svc)
-            else startService(svc)
-            Prefs.get(this).edit().putBoolean(Prefs.KEY_RUNNING, true).apply()
+            refresh()
+            return
         }
+        // 启动前先确保权限；缺就自动申请，授权回来后继续启动
+        if (!hasAllPerms()) {
+            pendingStart = true
+            requestPermissions(requiredPerms, 100)
+            return
+        }
+        startServiceNow()
+    }
+
+    private fun startServiceNow() {
+        val svc = Intent(this, ForwardService::class.java)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) startForegroundService(svc)
+        else startService(svc)
+        Prefs.get(this).edit().putBoolean(Prefs.KEY_RUNNING, true).apply()
         refresh()
+        maybeRequestBattery() // 顺手自动弹电池优化豁免（未豁免时）
+    }
+
+    private fun maybeRequestBattery() {
+        if (isIgnoringBattery()) return
+        try {
+            startActivity(Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, Uri.parse("package:$packageName")))
+        } catch (_: Exception) {
+        }
     }
 
     private fun renderLog() {

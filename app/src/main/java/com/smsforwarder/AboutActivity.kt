@@ -1,5 +1,7 @@
 package com.smsforwarder
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
@@ -19,5 +21,15 @@ class AboutActivity : AppCompatActivity() {
             "?"
         }
         findViewById<TextView>(R.id.tvVersion).text = getString(R.string.about_version, version)
+
+        findViewById<Button>(R.id.btnGithub).setOnClickListener { open(getString(R.string.link_github)) }
+        findViewById<Button>(R.id.btnWebsite).setOnClickListener { open(getString(R.string.link_website)) }
+    }
+
+    private fun open(url: String) {
+        try {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+        } catch (_: Exception) {
+        }
     }
 }

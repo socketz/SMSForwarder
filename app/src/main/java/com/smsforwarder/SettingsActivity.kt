@@ -15,7 +15,9 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
+import androidx.core.os.LocaleListCompat
 import com.google.android.material.switchmaterial.SwitchMaterial
 
 /**
@@ -62,8 +64,32 @@ class SettingsActivity : AppCompatActivity() {
         findViewById<Button>(R.id.btnAbout).setOnClickListener {
             startActivity(Intent(this, AboutActivity::class.java))
         }
+        findViewById<Button>(R.id.btnLanguage).setOnClickListener { showLanguageDialog() }
 
         load()
+    }
+
+    /** 语言切换：跟随系统 / 中文 / English，用 AppCompat 的 per-app locale */
+    private fun showLanguageDialog() {
+        val tags = listOf("", "zh", "en")
+        val labels = arrayOf(
+            getString(R.string.lang_system),
+            getString(R.string.lang_zh),
+            getString(R.string.lang_en),
+        )
+        val cur = AppCompatDelegate.getApplicationLocales()
+        val curTag = if (cur.isEmpty) "" else (cur[0]?.language ?: "")
+        val checked = tags.indexOf(if (curTag.startsWith("zh")) "zh" else if (curTag.startsWith("en")) "en" else "")
+        AlertDialog.Builder(this)
+            .setTitle(R.string.lang_title)
+            .setSingleChoiceItems(labels, checked) { d, which ->
+                val locales = if (tags[which].isEmpty()) LocaleListCompat.getEmptyLocaleList()
+                else LocaleListCompat.forLanguageTags(tags[which])
+                AppCompatDelegate.setApplicationLocales(locales)
+                d.dismiss()
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
     }
 
     override fun onResume() {

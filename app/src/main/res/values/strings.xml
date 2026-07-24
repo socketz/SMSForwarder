@@ -97,7 +97,20 @@
     <string name="cfg_base_url_desc">Leave empty to use the default. Override only for local/staging testing.</string>
     <string name="toast_saved">Saved</string>
 
+    <!-- Language -->
+    <string name="btn_language">Language</string>
+    <string name="lang_title">Language</string>
+    <string name="lang_system">Follow system</string>
+    <string name="lang_zh">中文</string>
+    <string name="lang_en">English</string>
+
     <!-- About -->
     <string name="about_version">Version %1$s</string>
-    <string name="about_body">Reads incoming SMS and uploads them to your account on the SMS Forwarder backend, which forwards each message to the channels you configured (Telegram).\n\nSign in once on this phone; the device stays signed in. Configure channels in the app — they are stored on the server and tied to your account, so messages are never delivered to the wrong user.\n\nCapture: a real-time SMS broadcast receiver (works even when the app process has been killed), plus an optional periodic reconciliation that re-uploads anything missed. Upload is queued via WorkManager and retried until it succeeds, surviving process death and reboot.\n\nSurvival: a persistent foreground service, auto-restart on boot, battery-optimization exemption, and OEM auto-start whitelisting keep it running long-term.\n\nFor personal use.</string>
+    <string name="about_intro">SMS Forwarder captures the text messages your phone receives and forwards them to your Telegram, so you can read them anywhere — even when you\'re away from the phone. Just sign in, bind your Telegram, and start the service; leave the phone plugged in at home and your SMS follow you.</string>
+    <string name="about_disclaimer_title">Disclaimer</string>
+    <string name="about_disclaimer">For personal use. The app reads your SMS only to forward them to the destination you set up; message contents are relayed, not kept on the server. You are responsible for complying with local laws and for the security of your own account and server. Provided as-is, without any warranty.</string>
+    <string name="about_github">GitHub</string>
+    <string name="about_website">Website</string>
+    <string name="link_github">https://github.com/ShuttleLab</string>
+    <string name="link_website">https://smsforwarder.shuttlelab.org</string>
 </resources>

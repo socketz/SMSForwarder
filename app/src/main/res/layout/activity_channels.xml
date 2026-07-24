@@ -19,11 +19,11 @@
 
             <Button
                 android:id="@+id/btnBack"
-                style="?android:attr/borderlessButtonStyle"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/btn_back"
-                android:textColor="#00E676" />
+                android:minWidth="0dp"
+                android:text="@string/btn_back" />
 
             <TextView
                 android:layout_width="0dp"

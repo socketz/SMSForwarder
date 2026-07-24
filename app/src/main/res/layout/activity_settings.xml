@@ -19,11 +19,11 @@
 
             <Button
                 android:id="@+id/btnBack"
-                style="?android:attr/borderlessButtonStyle"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/btn_back"
-                android:textColor="#00E676" />
+                android:minWidth="0dp"
+                android:text="@string/btn_back" />
 
             <TextView
                 android:layout_width="0dp"
@@ -37,11 +37,11 @@
 
             <Button
                 android:id="@+id/btnSave"
-                style="?android:attr/borderlessButtonStyle"
+                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/btn_save"
-                android:textColor="#00E676" />
+                android:minWidth="0dp"
+                android:text="@string/btn_save" />
         </LinearLayout>
 
         <!-- 权限与保活 -->
@@ -201,13 +201,20 @@
         </LinearLayout>
 
         <Button
+            android:id="@+id/btnLanguage"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="@string/btn_language" />
+
+        <Button
             android:id="@+id/btnAbout"
-            style="?android:attr/borderlessButtonStyle"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="@string/btn_about"
-            android:textColor="#66BBFF" />
+            android:text="@string/btn_about" />
 
         <View
             android:layout_width="match_parent"

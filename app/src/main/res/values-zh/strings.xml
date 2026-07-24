@@ -97,7 +97,20 @@
     <string name="cfg_base_url_desc">留空使用默认。仅在对本地/测试服调试时才覆盖。</string>
     <string name="toast_saved">已保存</string>
 
+    <!-- 语言 -->
+    <string name="btn_language">语言 / Language</string>
+    <string name="lang_title">语言 / Language</string>
+    <string name="lang_system">跟随系统</string>
+    <string name="lang_zh">中文</string>
+    <string name="lang_en">English</string>
+
     <!-- 关于 -->
     <string name="about_version">版本 %1$s</string>
-    <string name="about_body">读取收到的短信，上传到你在「短信转发」后端的账号；后端再按你配置的渠道（Telegram）转发。\n\n本机登录一次即长期保持登录。渠道在 App 里配置、存在服务端并与你的账号绑定，消息绝不会发错人。\n\n捕获：实时短信广播接收器（即使进程被杀也会被系统拉起），另加可选的周期性对账补传漏掉的短信。上传经 WorkManager 排队并一直重试到成功，跨进程被杀与重启恢复。\n\n存活：常驻前台服务 + 开机自启 + 电池优化豁免 + 厂商自启动白名单，共同保证长期运行。\n\n供个人使用。</string>
+    <string name="about_intro">「短信转发」会把你手机收到的短信转发到你的 Telegram，这样你人不在手机旁边也能随时看到。只需登录、绑定 Telegram、开启服务；把手机插电放家里，短信就跟着你走。</string>
+    <string name="about_disclaimer_title">免责声明</string>
+    <string name="about_disclaimer">仅供个人使用。本应用读取短信只为转发到你自己配置的目的地；消息内容仅做转发、不在服务器保留。你需自行遵守当地法律法规，并对自己的账号与服务器安全负责。软件按「现状」提供，不作任何担保。</string>
+    <string name="about_github">GitHub</string>
+    <string name="about_website">官网</string>
+    <string name="link_github">https://github.com/ShuttleLab</string>
+    <string name="link_website">https://smsforwarder.shuttlelab.org</string>
 </resources>
