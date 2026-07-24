@@ -7,15 +7,14 @@ import android.net.Uri
 import androidx.core.content.ContextCompat
 
 /**
- * 从短信数据库 content://sms/inbox 扫描新短信并入队上传。
- * 这是「轮询」抓取路径——华为/HarmonyOS 常常不给第三方 App 下发 SMS_RECEIVED 广播，
- * 但读短信库(有 READ_SMS)是可行的，所以前台服务用它做主力抓取；广播作为补充。
- *
- * 必须在后台线程调用（有 ContentProvider 查询）。与广播路径共用去重集合，不会重复转发。
+ * 从短信数据库 content://sms/inbox 扫描新短信并**直接上传**（不经 WorkManager——华为会掐死它）。
+ * 由前台服务每 ~15s 调用一次（近实时），也被周期性 ReconcileWorker 兜底调用。
+ * 必须在后台线程调用（ContentProvider 查询 + 网络上传）。与广播路径共用去重集合。
  */
 object SmsScanner {
 
-    /** 扫描一次：把游标之后、尚未见过的短信入队上传。首次运行只把游标设到「现在」，不回补历史。 */
+    private const val BATCH = 50 // 单次最多处理条数，避免一次轮询卡太久
+
     fun scan(ctx: Context) {
         if (!Prefs.isLoggedIn(ctx)) return
         if (ContextCompat.checkSelfPermission(ctx, Manifest.permission.READ_SMS)
@@ -24,12 +23,13 @@ object SmsScanner {
 
         val p = Prefs.get(ctx)
         val lastSeen = p.getLong(Prefs.KEY_LAST_SEEN_TS, 0L)
+        // 首次运行只把游标设到「现在」，不回补历史
         if (lastSeen == 0L) {
             p.edit().putLong(Prefs.KEY_LAST_SEEN_TS, System.currentTimeMillis()).apply()
             return
         }
 
-        var maxDate = lastSeen
+        var cursor = lastSeen
         try {
             val uri = Uri.parse("content://sms/inbox")
             val projection = arrayOf("address", "body", "date")
@@ -39,18 +39,24 @@ object SmsScanner {
                 val idxAddr = c.getColumnIndex("address")
                 val idxBody = c.getColumnIndex("body")
                 val idxDate = c.getColumnIndex("date")
+                var processed = 0
                 while (c.moveToNext()) {
                     val sender = if (idxAddr >= 0) c.getString(idxAddr) ?: "" else ""
                     val body = if (idxBody >= 0) c.getString(idxBody) ?: "" else ""
                     val date = if (idxDate >= 0) c.getLong(idxDate) else System.currentTimeMillis()
-                    if (date > maxDate) maxDate = date
-                    if (body.isBlank()) continue
-                    if (Prefs.seenContains(ctx, sender, body, date)) continue
+
+                    if (body.isBlank()) { cursor = date; continue }
+                    if (Prefs.seenContains(ctx, sender, body, date)) { cursor = date; continue }
+
+                    val handled = Uploader.uploadDirect(ctx, Sms(sender, body, date))
+                    if (!handled) break // 瞬时失败：保留游标，下次轮询重试
+
                     Prefs.seenAdd(ctx, sender, body, date)
-                    WorkScheduler.enqueueUpload(ctx, Sms(sender, body, date))
+                    cursor = date
+                    if (++processed >= BATCH) break
                 }
             }
-            p.edit().putLong(Prefs.KEY_LAST_SEEN_TS, maxDate).apply()
+            p.edit().putLong(Prefs.KEY_LAST_SEEN_TS, cursor).apply()
         } catch (_: Exception) {
         }
     }
