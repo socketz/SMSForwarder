@@ -114,12 +114,25 @@ class ForwardService : Service() {
     private fun startHeartbeat() {
         loop?.cancel()
         loop = scope.launch {
+            DebugLog.log(applicationContext, "心跳循环已启动")
+            var n = 0
             while (isActive) {
-                withContext(Dispatchers.IO) { SmsScanner.scan(applicationContext) }
-                val mgr = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-                mgr.notify(NOTIF_ID, buildNotification())
+                n++
+                // 每一步都兜住异常：任何单次错误都不能杀死整个轮询循环
+                try {
+                    withContext(Dispatchers.IO) { SmsScanner.scan(applicationContext) }
+                } catch (e: Exception) {
+                    DebugLog.log(applicationContext, "心跳#$n 轮询异常：${e.message}")
+                }
+                try {
+                    val mgr = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+                    mgr.notify(NOTIF_ID, buildNotification())
+                } catch (e: Exception) {
+                    DebugLog.log(applicationContext, "心跳#$n 通知异常：${e.message}")
+                }
                 delay(Prefs.pollSeconds(applicationContext) * 1000L)
             }
+            DebugLog.log(applicationContext, "心跳循环结束(isActive=false)")
         }
     }
 
