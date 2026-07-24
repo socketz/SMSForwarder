@@ -90,6 +90,8 @@
     <string name="btn_test">Test</string>
     <string name="cfg_survival_title">Permissions &amp; keep-alive</string>
     <string name="btn_diag_sms">Diagnose: read SMS inbox</string>
+    <string name="btn_debug_log">Activity log</string>
+    <string name="cfg_poll_sec">Poll interval (seconds, 3–120)</string>
     <string name="cfg_keepalive">Aggressive keep-alive (silent audio)</string>
     <string name="cfg_keepalive_desc">Plays a silent audio loop so the system treats the app like a media player and is less likely to kill it. Uses a little CPU/battery — recommended only for a phone kept plugged in. Takes effect next time the service (re)starts.</string>
     <string name="cfg_reconcile_enable">Periodic reconciliation (backstop)</string>

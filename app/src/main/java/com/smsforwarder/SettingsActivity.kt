@@ -34,6 +34,7 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var swKeepalive: SwitchMaterial
     private lateinit var swReconcile: SwitchMaterial
     private lateinit var etReconcileMin: EditText
+    private lateinit var etPollSec: EditText
     private lateinit var etLogKeep: EditText
     private lateinit var etBaseUrl: EditText
 
@@ -56,6 +57,7 @@ class SettingsActivity : AppCompatActivity() {
         swKeepalive = findViewById(R.id.swKeepalive)
         swReconcile = findViewById(R.id.swReconcile)
         etReconcileMin = findViewById(R.id.etReconcileMin)
+        etPollSec = findViewById(R.id.etPollSec)
         etLogKeep = findViewById(R.id.etLogKeep)
         etBaseUrl = findViewById(R.id.etBaseUrl)
 
@@ -65,6 +67,9 @@ class SettingsActivity : AppCompatActivity() {
         findViewById<Button>(R.id.btnBattery).setOnClickListener { requestBatteryExemption() }
         findViewById<Button>(R.id.btnAutostart).setOnClickListener { showAutostartGuide() }
         findViewById<Button>(R.id.btnDiagSms).setOnClickListener { diagnoseSms() }
+        findViewById<Button>(R.id.btnDebugLog).setOnClickListener {
+            startActivity(Intent(this, DebugLogActivity::class.java))
+        }
         findViewById<Button>(R.id.btnAbout).setOnClickListener {
             startActivity(Intent(this, AboutActivity::class.java))
         }
@@ -219,6 +224,7 @@ class SettingsActivity : AppCompatActivity() {
         swKeepalive.isChecked = p.getBoolean(Prefs.KEY_KEEPALIVE_AUDIO, false)
         swReconcile.isChecked = p.getBoolean(Prefs.KEY_RECONCILE_ENABLED, true)
         etReconcileMin.setText(p.getInt(Prefs.KEY_RECONCILE_MIN, 15).toString())
+        etPollSec.setText(Prefs.pollSeconds(this).toString())
         etLogKeep.setText(p.getInt(Prefs.KEY_LOG_KEEP, 200).toString())
         etBaseUrl.setText(p.getString(Prefs.KEY_BASE_URL, ""))
         etBaseUrl.hint = Prefs.DEFAULT_BASE_URL
@@ -226,11 +232,13 @@ class SettingsActivity : AppCompatActivity() {
 
     private fun save() {
         val minutes = etReconcileMin.text.toString().toIntOrNull()?.coerceAtLeast(15) ?: 15
+        val pollSec = etPollSec.text.toString().toIntOrNull()?.coerceIn(3, 120) ?: 5
         val keep = etLogKeep.text.toString().toIntOrNull()?.coerceIn(20, 2000) ?: 200
         Prefs.get(this).edit()
             .putBoolean(Prefs.KEY_KEEPALIVE_AUDIO, swKeepalive.isChecked)
             .putBoolean(Prefs.KEY_RECONCILE_ENABLED, swReconcile.isChecked)
             .putInt(Prefs.KEY_RECONCILE_MIN, minutes)
+            .putInt(Prefs.KEY_POLL_SEC, pollSec)
             .putInt(Prefs.KEY_LOG_KEEP, keep)
             .putString(Prefs.KEY_BASE_URL, etBaseUrl.text.toString().trim())
             .apply()

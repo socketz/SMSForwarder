@@ -7,9 +7,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 /**
- * 把一条短信上传到后端 /api/sms。转发到各渠道由服务器完成，这里只负责"送达后端"。
- * 这条链路是唯一命脉：网络/5xx 失败就无限退避重试（WorkManager 默认无限重试），
- * 绝不因重试耗尽而丢消息；只有 401（需重新登录）和 4xx（请求本身有问题）才永久失败。
+ * 广播路径的上传 Worker（非华为机型上，SMS_RECEIVED 触发后走这里即时上传）。
+ * 华为上 WorkManager 通常不执行，热路径由前台服务的直接上传(Uploader)承担，这里作为
+ * 非华为的即时通道 + 兜底。实际上传逻辑复用 Uploader。
  */
 class UploadWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(ctx, params) {
 
@@ -22,35 +22,17 @@ class UploadWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(ctx
 
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         val ctx = applicationContext
-        if (!Prefs.isLoggedIn(ctx)) return@withContext Result.failure() // 未登录，无法上传
+        if (!Prefs.isLoggedIn(ctx)) return@withContext Result.failure()
 
         val sms = Sms(
             sender = inputData.getString(K_SENDER) ?: "",
             body = inputData.getString(K_BODY) ?: "",
             timestamp = inputData.getLong(K_TS, System.currentTimeMillis()),
         )
-        val key = inputData.getString(K_KEY) ?: Prefs.dedupKey(sms.sender, sms.body, sms.timestamp)
-
-        when (val r = Api.uploadSms(ctx, sms, key)) {
-            is ApiResp.Ok -> {
-                ForwardLog.append(ctx, LogEntry(now(), sms.sender, true, "已上传"))
-                Result.success()
-            }
-            is ApiResp.Err -> when {
-                r.code == 401 -> {
-                    // token 失效/被吊销：停止并提示重新登录，不再重试
-                    ForwardLog.append(ctx, LogEntry(now(), sms.sender, false, "需要重新登录 (401)"))
-                    Result.failure()
-                }
-                r.code in 400..499 && r.code != 429 -> {
-                    // 请求本身有问题，重试也没用
-                    ForwardLog.append(ctx, LogEntry(now(), sms.sender, false, "上传被拒 (${r.code}): ${r.message}"))
-                    Result.failure()
-                }
-                else -> Result.retry() // 网络(-1) / 5xx / 429 → 无限退避重试
-            }
+        when (Uploader.uploadDirect(ctx, sms)) {
+            UploadResult.SUCCESS -> Result.success()
+            UploadResult.PERMANENT_FAIL -> Result.failure()
+            UploadResult.TRANSIENT_FAIL -> Result.retry()
         }
     }
-
-    private fun now() = System.currentTimeMillis()
 }

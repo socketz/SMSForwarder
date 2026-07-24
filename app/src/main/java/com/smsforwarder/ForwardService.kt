@@ -69,12 +69,14 @@ class ForwardService : Service() {
         }
         Prefs.get(this).edit().putBoolean(Prefs.KEY_RUNNING, true).apply()
         WorkScheduler.scheduleReconcile(this)
+        DebugLog.log(this, "服务启动（轮询间隔 ${Prefs.pollSeconds(this)}s）")
         startHeartbeat()
         return START_STICKY  // 被系统杀掉后自动重建
     }
 
     override fun onDestroy() {
         Prefs.get(this).edit().putBoolean(Prefs.KEY_RUNNING, false).apply()
+        DebugLog.log(this, "服务停止")
         stopKeepaliveAudio()
         scope.cancel()
         super.onDestroy()
@@ -106,7 +108,7 @@ class ForwardService : Service() {
     }
 
     /**
-     * 心跳循环：每 ~15s 轮询一次短信库抓新短信(华为等不下发广播时的主力抓取)，
+     * 心跳循环：每 N 秒(可配)轮询一次短信库抓新短信(华为等不下发广播时的主力抓取)，
      * 并刷新通知里的计数。轮询走 IO 线程。
      */
     private fun startHeartbeat() {
@@ -116,7 +118,7 @@ class ForwardService : Service() {
                 withContext(Dispatchers.IO) { SmsScanner.scan(applicationContext) }
                 val mgr = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
                 mgr.notify(NOTIF_ID, buildNotification())
-                delay(15_000)
+                delay(Prefs.pollSeconds(applicationContext) * 1000L)
             }
         }
     }

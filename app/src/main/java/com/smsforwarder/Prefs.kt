@@ -29,6 +29,13 @@ object Prefs {
     const val KEY_RECONCILE_MIN = "reconcile_min"
     const val KEY_LAST_SEEN_TS = "last_seen_ts"
 
+    // 前台服务轮询短信库的间隔（秒）+ 上次轮询时刻（供运行日志显示）
+    const val KEY_POLL_SEC = "poll_sec"
+    const val KEY_LAST_POLL_TS = "last_poll_ts"
+
+    // 运行日志（诊断用，JSON 数组，最新在前，有上限）
+    const val KEY_DEBUG_LOG = "debug_log"
+
     // 本地上传日志（只记"是否成功上传到后端"，各渠道投递结果在服务端 admin 看）
     const val KEY_UPLOAD_LOG = "upload_log"
     const val KEY_LOG_KEEP = "log_keep"
@@ -56,6 +63,8 @@ object Prefs {
     }
 
     fun isRunning(ctx: Context) = get(ctx).getBoolean(KEY_RUNNING, false)
+
+    fun pollSeconds(ctx: Context) = get(ctx).getInt(KEY_POLL_SEC, 5).coerceIn(3, 120)
 
     fun reconcileEnabled(ctx: Context) = get(ctx).getBoolean(KEY_RECONCILE_ENABLED, true)
     fun reconcileMinutes(ctx: Context) = get(ctx).getInt(KEY_RECONCILE_MIN, 15).coerceAtLeast(15)

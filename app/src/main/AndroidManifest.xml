@@ -50,6 +50,10 @@
             android:exported="false" />
 
         <activity
+            android:name=".DebugLogActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".AboutActivity"
             android:exported="false" />
 

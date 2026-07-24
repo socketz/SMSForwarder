@@ -106,6 +106,14 @@
                 android:layout_marginTop="8dp"
                 android:text="@string/btn_diag_sms" />
 
+            <Button
+                android:id="@+id/btnDebugLog"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/btn_debug_log" />
+
             <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/swKeepalive"
                 android:layout_width="match_parent"
@@ -159,6 +167,25 @@
 
             <EditText
                 android:id="@+id/etReconcileMin"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/input_bg"
+                android:inputType="number"
+                android:padding="10dp"
+                android:textColor="#FFFFFF"
+                android:textColorHint="#666666"
+                android:textSize="14sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/cfg_poll_sec"
+                android:textColor="#AAAAAA"
+                android:textSize="13sp" />
+
+            <EditText
+                android:id="@+id/etPollSec"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/input_bg"
