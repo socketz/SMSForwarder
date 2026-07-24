@@ -98,6 +98,14 @@
                 android:layout_marginTop="8dp"
                 android:text="@string/btn_autostart" />
 
+            <Button
+                android:id="@+id/btnDiagSms"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/btn_diag_sms" />
+
             <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/swKeepalive"
                 android:layout_width="match_parent"

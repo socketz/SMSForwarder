@@ -89,6 +89,7 @@
     <string name="btn_save">保存</string>
     <string name="btn_test">测试</string>
     <string name="cfg_survival_title">权限与保活</string>
+    <string name="btn_diag_sms">诊断：读取短信库</string>
     <string name="cfg_keepalive">激进保活（静音音频）</string>
     <string name="cfg_keepalive_desc">循环播放一段无声音频，让系统把 App 当媒体播放器对待、更不易杀掉。会占用一点点 CPU/耗电，建议仅在插电常开的手机上开启。下次服务（重）启动时生效。</string>
     <string name="cfg_reconcile_enable">周期性对账（兜底补发）</string>

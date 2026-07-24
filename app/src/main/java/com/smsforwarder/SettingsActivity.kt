@@ -9,6 +9,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
 import android.provider.Settings
+import android.text.format.DateFormat
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
@@ -63,6 +64,7 @@ class SettingsActivity : AppCompatActivity() {
         btnGrantPerm.setOnClickListener { requestPermissions(requiredPerms, 100) }
         findViewById<Button>(R.id.btnBattery).setOnClickListener { requestBatteryExemption() }
         findViewById<Button>(R.id.btnAutostart).setOnClickListener { showAutostartGuide() }
+        findViewById<Button>(R.id.btnDiagSms).setOnClickListener { diagnoseSms() }
         findViewById<Button>(R.id.btnAbout).setOnClickListener {
             startActivity(Intent(this, AboutActivity::class.java))
         }
@@ -155,6 +157,61 @@ class SettingsActivity : AppCompatActivity() {
         try {
             startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:$packageName")))
         } catch (_: Exception) {}
+    }
+
+    /** 诊断：直接读一次短信库，报告可读条数/最新一条/游标，并可"重置游标+立即拉取"当场验证 */
+    private fun diagnoseSms() {
+        Thread {
+            val hasRead = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_SMS) ==
+                PackageManager.PERMISSION_GRANTED
+            val cursor = Prefs.get(this).getLong(Prefs.KEY_LAST_SEEN_TS, 0L)
+            val sb = StringBuilder()
+            sb.append("READ_SMS: ").append(if (hasRead) "已授予" else "未授予 ✗").append('\n')
+            sb.append("游标: ").append(if (cursor == 0L) "未初始化" else DateFormat.format("MM-dd HH:mm:ss", cursor)).append('\n')
+            var newest = 0L
+            var count = 0
+            if (hasRead) {
+                try {
+                    var newestAddr = ""
+                    contentResolver.query(
+                        Uri.parse("content://sms/inbox"), arrayOf("address", "date"), null, null, "date DESC"
+                    )?.use { c ->
+                        val ia = c.getColumnIndex("address"); val idt = c.getColumnIndex("date")
+                        while (c.moveToNext()) {
+                            count++
+                            if (count == 1) {
+                                newest = if (idt >= 0) c.getLong(idt) else 0L
+                                newestAddr = if (ia >= 0) c.getString(ia) ?: "" else ""
+                            }
+                        }
+                    }
+                    sb.append("短信库读到: ").append(count).append(" 条\n")
+                    if (count > 0) {
+                        sb.append("最新: ").append(newestAddr).append(" @ ")
+                            .append(DateFormat.format("MM-dd HH:mm:ss", newest)).append('\n')
+                        sb.append(if (cursor in 1 until newest) "→ 最新在游标之后，应能抓到" else "→ 最新<=游标，会被跳过(点重置)")
+                    } else {
+                        sb.append("→ 读不到内容：HarmonyOS 可能没把短信写入标准库/拦截了读取 → 需改用「默认短信应用」")
+                    }
+                } catch (e: Exception) {
+                    sb.append("读取抛异常: ").append(e.message).append("\n→ 库被拦，需改用「默认短信应用」")
+                }
+            }
+            val newestForReset = newest
+            runOnUiThread {
+                AlertDialog.Builder(this)
+                    .setTitle(R.string.btn_diag_sms)
+                    .setMessage(sb.toString())
+                    .setPositiveButton("重置游标并拉取") { _, _ ->
+                        val back = if (newestForReset > 0) newestForReset - 60_000 else System.currentTimeMillis() - 3_600_000
+                        Prefs.get(this).edit().putLong(Prefs.KEY_LAST_SEEN_TS, back).apply()
+                        Thread { SmsScanner.scan(this) }.start()
+                        Toast.makeText(this, "已重置游标并拉取，回主界面看最近上传", Toast.LENGTH_LONG).show()
+                    }
+                    .setNegativeButton("关闭", null)
+                    .show()
+            }
+        }.start()
     }
 
     private fun load() {
