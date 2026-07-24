@@ -94,9 +94,8 @@
     <string name="cfg_poll_sec">Poll interval (seconds, 3–120)</string>
     <string name="cfg_keepalive">Aggressive keep-alive (silent audio)</string>
     <string name="cfg_keepalive_desc">Plays a silent audio loop so the system treats the app like a media player and is less likely to kill it. Uses a little CPU/battery — recommended only for a phone kept plugged in. Takes effect next time the service (re)starts.</string>
-    <string name="cfg_reconcile_enable">Periodic reconciliation (backstop)</string>
-    <string name="cfg_reconcile_desc">Periodically scan the SMS inbox and re-upload any message missed by the real-time broadcast. Requires READ_SMS.</string>
-    <string name="cfg_reconcile_min">Interval (minutes, min 15)</string>
+    <string name="cfg_capture_title">Capture &amp; log</string>
+    <string name="cfg_poll_desc">How often the service reads the SMS inbox and forwards new messages. Shorter = faster; fine on a plugged-in phone.</string>
     <string name="cfg_log_keep">Log entries to keep (20–2000)</string>
     <string name="cfg_base_url">Backend URL (advanced)</string>
     <string name="cfg_base_url_desc">Leave empty to use the default. Override only for local/staging testing.</string>

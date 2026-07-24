@@ -94,9 +94,8 @@
     <string name="cfg_poll_sec">轮询间隔（秒，3–120）</string>
     <string name="cfg_keepalive">激进保活（静音音频）</string>
     <string name="cfg_keepalive_desc">循环播放一段无声音频，让系统把 App 当媒体播放器对待、更不易杀掉。会占用一点点 CPU/耗电，建议仅在插电常开的手机上开启。下次服务（重）启动时生效。</string>
-    <string name="cfg_reconcile_enable">周期性对账（兜底补发）</string>
-    <string name="cfg_reconcile_desc">定期扫描短信收件箱，补传被实时广播漏掉的短信。需要读取短信权限。</string>
-    <string name="cfg_reconcile_min">间隔（分钟，最少 15）</string>
+    <string name="cfg_capture_title">抓取与日志</string>
+    <string name="cfg_poll_desc">前台服务每隔这么多秒读一次短信库、转发新短信。越短越快；插电常开的机器无所谓。</string>
     <string name="cfg_log_keep">日志保留条数（20–2000）</string>
     <string name="cfg_base_url">后端地址（高级）</string>
     <string name="cfg_base_url_desc">留空使用默认。仅在对本地/测试服调试时才覆盖。</string>
