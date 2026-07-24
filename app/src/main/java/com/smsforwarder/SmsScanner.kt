@@ -49,7 +49,6 @@ object SmsScanner {
         var newId = lastId
         var rows = 0
         var skippedBlank = 0
-        var skippedSeen = 0
         var found = 0
         var ok = 0
         var permFail = 0
@@ -72,20 +71,17 @@ object SmsScanner {
                     rows++
 
                     if (body.isBlank()) { skippedBlank++; newId = id; continue }
-                    if (Prefs.seenContains(ctx, sender, body, date)) { skippedSeen++; newId = id; continue }
 
+                    // 不再用本地 seen 去重(会误伤)：_id 游标保证每条只处理一次，
+                    // 跨路径/并发重复由服务端 client_msg_id 幂等兜底。
                     found++
                     when (Uploader.uploadDirect(ctx, Sms(sender, body, date))) {
                         UploadResult.TRANSIENT_FAIL -> {
                             transient++
                             break // 瞬时失败：不前移游标(不越过这条)，下次重试
                         }
-                        UploadResult.SUCCESS -> {
-                            ok++; Prefs.seenAdd(ctx, sender, body, date); newId = id
-                        }
-                        UploadResult.PERMANENT_FAIL -> {
-                            permFail++; Prefs.seenAdd(ctx, sender, body, date); newId = id
-                        }
+                        UploadResult.SUCCESS -> { ok++; newId = id }
+                        UploadResult.PERMANENT_FAIL -> { permFail++; newId = id }
                     }
                     if (++processed >= BATCH) break
                 }
@@ -93,7 +89,7 @@ object SmsScanner {
             p.edit().putLong(Prefs.KEY_LAST_SEEN_ID, newId).apply()
             DebugLog.log(
                 ctx,
-                "轮询：读到 $rows 行｜空 $skippedBlank｜已见 $skippedSeen｜发 $found(成功$ok/永久$permFail/重试$transient)"
+                "轮询：读到 $rows 行｜空 $skippedBlank｜发 $found(成功$ok/永久$permFail/重试$transient)"
             )
         } catch (e: Exception) {
             DebugLog.log(ctx, "读短信库异常：${e.message}")
