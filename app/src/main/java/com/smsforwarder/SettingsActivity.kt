@@ -30,6 +30,7 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var btnGrantPerm: Button
     private lateinit var tvBattery: TextView
 
+    private lateinit var swKeepalive: SwitchMaterial
     private lateinit var swReconcile: SwitchMaterial
     private lateinit var etReconcileMin: EditText
     private lateinit var etLogKeep: EditText
@@ -51,6 +52,7 @@ class SettingsActivity : AppCompatActivity() {
         tvPerm = findViewById(R.id.tvPerm)
         btnGrantPerm = findViewById(R.id.btnGrantPerm)
         tvBattery = findViewById(R.id.tvBattery)
+        swKeepalive = findViewById(R.id.swKeepalive)
         swReconcile = findViewById(R.id.swReconcile)
         etReconcileMin = findViewById(R.id.etReconcileMin)
         etLogKeep = findViewById(R.id.etLogKeep)
@@ -157,6 +159,7 @@ class SettingsActivity : AppCompatActivity() {
 
     private fun load() {
         val p = Prefs.get(this)
+        swKeepalive.isChecked = p.getBoolean(Prefs.KEY_KEEPALIVE_AUDIO, false)
         swReconcile.isChecked = p.getBoolean(Prefs.KEY_RECONCILE_ENABLED, true)
         etReconcileMin.setText(p.getInt(Prefs.KEY_RECONCILE_MIN, 15).toString())
         etLogKeep.setText(p.getInt(Prefs.KEY_LOG_KEEP, 200).toString())
@@ -168,12 +171,19 @@ class SettingsActivity : AppCompatActivity() {
         val minutes = etReconcileMin.text.toString().toIntOrNull()?.coerceAtLeast(15) ?: 15
         val keep = etLogKeep.text.toString().toIntOrNull()?.coerceIn(20, 2000) ?: 200
         Prefs.get(this).edit()
+            .putBoolean(Prefs.KEY_KEEPALIVE_AUDIO, swKeepalive.isChecked)
             .putBoolean(Prefs.KEY_RECONCILE_ENABLED, swReconcile.isChecked)
             .putInt(Prefs.KEY_RECONCILE_MIN, minutes)
             .putInt(Prefs.KEY_LOG_KEEP, keep)
             .putString(Prefs.KEY_BASE_URL, etBaseUrl.text.toString().trim())
             .apply()
         WorkScheduler.scheduleReconcile(this)
+        // 服务在运行时重新下发 onStartCommand，让保活方式（媒体类型/静音音频）即时切换
+        if (Prefs.isRunning(this)) {
+            val svc = Intent(this, ForwardService::class.java)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) startForegroundService(svc)
+            else startService(svc)
+        }
         Toast.makeText(this, R.string.toast_saved, Toast.LENGTH_SHORT).show()
     }
 }

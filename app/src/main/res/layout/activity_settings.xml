@@ -97,6 +97,23 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:text="@string/btn_autostart" />
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/swKeepalive"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/cfg_keepalive"
+                android:textColor="#FFFFFF"
+                android:textSize="15sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/cfg_keepalive_desc"
+                android:textColor="#888888"
+                android:textSize="12sp" />
         </LinearLayout>
 
         <!-- 兜底对账 + 日志 -->

@@ -12,6 +12,8 @@
     <!-- 后台存活 -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <!-- 可选的静音音频保活：以 mediaPlayback 类型运行前台服务 -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
@@ -54,7 +56,7 @@
         <service
             android:name=".ForwardService"
             android:exported="false"
-            android:foregroundServiceType="specialUse">
+            android:foregroundServiceType="specialUse|mediaPlayback">
             <property
                 android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
                 android:value="Keeps the app resident so incoming SMS are captured in real time and reliably forwarded to the user's configured HTTP and Telegram endpoints, and periodically reconciles the SMS inbox to re-send any message missed while the process was frozen. Requires an ongoing foreground service because message capture and delivery must continue while the app is backgrounded." />

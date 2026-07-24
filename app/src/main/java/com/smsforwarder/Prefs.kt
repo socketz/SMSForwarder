@@ -21,6 +21,9 @@ object Prefs {
     // 运行状态
     const val KEY_RUNNING = "running"
 
+    // 可选：静音音频保活（默认关；插电常开机可开）
+    const val KEY_KEEPALIVE_AUDIO = "keepalive_audio"
+
     // 兜底对账
     const val KEY_RECONCILE_ENABLED = "reconcile_enabled"
     const val KEY_RECONCILE_MIN = "reconcile_min"

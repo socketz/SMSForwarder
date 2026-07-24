@@ -7,6 +7,7 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
 import android.content.pm.ServiceInfo
+import android.media.MediaPlayer
 import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
@@ -23,6 +24,10 @@ import kotlinx.coroutines.launch
  * 常驻前台服务。它本身不负责捕获或转发（那两条路径分别由广播和 WorkManager 独立完成），
  * 职责是：保持进程温热、显示常驻状态通知、并确保周期性对账任务已安排。
  * START_STICKY + 前台通知 + 电池优化白名单，共同保证长期存活。
+ *
+ * 可选的「静音音频保活」（Prefs.KEY_KEEPALIVE_AUDIO）：循环播放一段无声音频，
+ * 并以 mediaPlayback 前台服务类型运行，让系统当媒体 App 对待、更不易杀。默认关闭；
+ * 适合插电常开的机器（代价是一点点 CPU/耗电）。
  */
 class ForwardService : Service() {
 
@@ -33,6 +38,7 @@ class ForwardService : Service() {
 
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
     private var loop: Job? = null
+    private var player: MediaPlayer? = null
 
     override fun onCreate() {
         super.onCreate()
@@ -40,9 +46,23 @@ class ForwardService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        val keepalive = Prefs.get(this).getBoolean(Prefs.KEY_KEEPALIVE_AUDIO, false)
+        // 先起音频，再以媒体类型进入前台（Android 14 对 mediaPlayback 要求确实在播放）
+        if (keepalive) startKeepaliveAudio() else stopKeepaliveAudio()
+
         val notif = buildNotification()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            startForeground(NOTIF_ID, notif, ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
+            val type = if (keepalive) ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
+            else ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
+            try {
+                startForeground(NOTIF_ID, notif, type)
+            } catch (_: Exception) {
+                // 媒体类型被拒时回退到 specialUse，保证服务仍能进前台
+                try {
+                    startForeground(NOTIF_ID, notif, ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
+                } catch (_: Exception) {
+                }
+            }
         } else {
             startForeground(NOTIF_ID, notif)
         }
@@ -54,11 +74,35 @@ class ForwardService : Service() {
 
     override fun onDestroy() {
         Prefs.get(this).edit().putBoolean(Prefs.KEY_RUNNING, false).apply()
+        stopKeepaliveAudio()
         scope.cancel()
         super.onDestroy()
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
+
+    /** 循环播放无声音频（音量 0、不抢音频焦点，与用户正在放的音乐互不干扰） */
+    private fun startKeepaliveAudio() {
+        if (player != null) return
+        try {
+            player = MediaPlayer.create(this, R.raw.silence)?.apply {
+                isLooping = true
+                setVolume(0f, 0f)
+                start()
+            }
+        } catch (_: Exception) {
+            player = null
+        }
+    }
+
+    private fun stopKeepaliveAudio() {
+        try {
+            player?.stop()
+            player?.release()
+        } catch (_: Exception) {
+        }
+        player = null
+    }
 
     /** 每 30s 刷新一次通知里的转发计数，并保证对账任务在位 */
     private fun startHeartbeat() {
