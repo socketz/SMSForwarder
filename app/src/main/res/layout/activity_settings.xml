@@ -44,6 +44,61 @@
                 android:textColor="#00E676" />
         </LinearLayout>
 
+        <!-- 权限与保活 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/card_bg"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/cfg_survival_title"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvPerm"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textColor="#CCCCCC"
+                android:textSize="14sp" />
+
+            <Button
+                android:id="@+id/btnGrantPerm"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/btn_grant_perm" />
+
+            <TextView
+                android:id="@+id/tvBattery"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:textColor="#CCCCCC"
+                android:textSize="14sp" />
+
+            <Button
+                android:id="@+id/btnBattery"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/btn_battery" />
+
+            <Button
+                android:id="@+id/btnAutostart"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/btn_autostart" />
+        </LinearLayout>
+
         <!-- 兜底对账 + 日志 -->
         <LinearLayout
             android:layout_width="match_parent"
@@ -144,6 +199,15 @@
                 android:textColorHint="#666666"
                 android:textSize="13sp" />
         </LinearLayout>
+
+        <Button
+            android:id="@+id/btnAbout"
+            style="?android:attr/borderlessButtonStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/btn_about"
+            android:textColor="#66BBFF" />
 
         <View
             android:layout_width="match_parent"

@@ -8,11 +8,19 @@
     <string name="notif_not_logged_in">Not logged in — open the app to sign in</string>
     <string name="notif_running_fmt">%1$d uploaded · %2$d failed</string>
 
-    <!-- Account / status -->
-    <string name="user_logged_in_fmt">Signed in: %1$s</string>
-    <string name="user_not_logged_in">Not signed in</string>
-    <string name="status_running">Running</string>
-    <string name="status_stopped">Stopped</string>
+    <!-- Main: 3-step guide -->
+    <string name="main_guide">Three steps and you\'re done:</string>
+    <string name="step1_title">1 · Sign in / Register</string>
+    <string name="step1_done_fmt">Signed in: %1$s</string>
+    <string name="step1_todo">Not signed in — sign in below to start</string>
+    <string name="step2_title">2 · Bind Telegram</string>
+    <string name="step2_checking">Checking…</string>
+    <string name="step2_done">Telegram bound</string>
+    <string name="step2_todo">Not bound — you won\'t receive messages; tap below to bind</string>
+    <string name="step2_need_login">Finish step 1 first</string>
+    <string name="step3_title">3 · Start the service</string>
+    <string name="step3_running">Service running</string>
+    <string name="step3_stopped">Service stopped</string>
     <string name="btn_start">Start service</string>
     <string name="btn_stop">Stop service</string>
     <string name="btn_login">Sign in / Register</string>
@@ -80,6 +88,7 @@
     <string name="btn_back">Back</string>
     <string name="btn_save">Save</string>
     <string name="btn_test">Test</string>
+    <string name="cfg_survival_title">Permissions &amp; keep-alive</string>
     <string name="cfg_reconcile_enable">Periodic reconciliation (backstop)</string>
     <string name="cfg_reconcile_desc">Periodically scan the SMS inbox and re-upload any message missed by the real-time broadcast. Requires READ_SMS.</string>
     <string name="cfg_reconcile_min">Interval (minutes, min 15)</string>

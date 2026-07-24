@@ -8,11 +8,19 @@
     <string name="notif_not_logged_in">未登录 — 打开 App 登录</string>
     <string name="notif_running_fmt">已上传 %1$d · 失败 %2$d</string>
 
-    <!-- 账号 / 状态 -->
-    <string name="user_logged_in_fmt">已登录：%1$s</string>
-    <string name="user_not_logged_in">未登录</string>
-    <string name="status_running">运行中</string>
-    <string name="status_stopped">已停止</string>
+    <!-- 主界面：三步引导 -->
+    <string name="main_guide">三步即可使用：</string>
+    <string name="step1_title">① 登录 / 注册</string>
+    <string name="step1_done_fmt">已登录：%1$s</string>
+    <string name="step1_todo">未登录 — 点下方登录/注册开始</string>
+    <string name="step2_title">② 绑定 Telegram</string>
+    <string name="step2_checking">检查中…</string>
+    <string name="step2_done">已绑定 Telegram</string>
+    <string name="step2_todo">未绑定，收不到消息 — 点下方去绑定</string>
+    <string name="step2_need_login">请先完成第 1 步登录</string>
+    <string name="step3_title">③ 开启服务</string>
+    <string name="step3_running">服务运行中</string>
+    <string name="step3_stopped">服务未启动</string>
     <string name="btn_start">启动服务</string>
     <string name="btn_stop">停止服务</string>
     <string name="btn_login">登录 / 注册</string>
@@ -80,6 +88,7 @@
     <string name="btn_back">返回</string>
     <string name="btn_save">保存</string>
     <string name="btn_test">测试</string>
+    <string name="cfg_survival_title">权限与保活</string>
     <string name="cfg_reconcile_enable">周期性对账（兜底补发）</string>
     <string name="cfg_reconcile_desc">定期扫描短信收件箱，补传被实时广播漏掉的短信。需要读取短信权限。</string>
     <string name="cfg_reconcile_min">间隔（分钟，最少 15）</string>

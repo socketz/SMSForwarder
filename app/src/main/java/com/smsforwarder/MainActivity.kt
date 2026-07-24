@@ -1,17 +1,12 @@
 package com.smsforwarder
 
 import android.Manifest
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.PowerManager
-import android.provider.Settings
 import android.text.format.DateFormat
 import android.view.LayoutInflater
-import android.view.View
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -20,19 +15,22 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 
+/**
+ * 主界面 = 三步引导：① 登录/注册 → ② 绑定 Telegram → ③ 开启服务。每步完成打 ✓。
+ * 保活（权限/电池/自启动）与关于都收进右上角「设置」，保持主页干净。
+ */
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var tvStatus: TextView
-    private lateinit var tvUser: TextView
-    private lateinit var tvPerm: TextView
-    private lateinit var tvBattery: TextView
+    private lateinit var tvStep1: TextView
+    private lateinit var tvStep2: TextView
+    private lateinit var tvStep3: TextView
+    private lateinit var btnStep1: Button
+    private lateinit var btnStep2: Button
     private lateinit var btnToggle: Button
-    private lateinit var btnLogin: Button
-    private lateinit var btnLogout: Button
-    private lateinit var btnChannels: Button
-    private lateinit var btnGrantPerm: Button
-    private lateinit var btnBattery: Button
     private lateinit var llLog: LinearLayout
+
+    private val green = 0xFF00E676.toInt()
+    private val grey = 0xFF888888.toInt()
 
     private val requiredPerms: Array<String>
         get() = buildList {
@@ -47,31 +45,20 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         applyEdgeToEdgeInsets(findViewById(R.id.root))
 
-        tvStatus = findViewById(R.id.tvStatus)
-        tvUser = findViewById(R.id.tvUser)
-        tvPerm = findViewById(R.id.tvPerm)
-        tvBattery = findViewById(R.id.tvBattery)
+        tvStep1 = findViewById(R.id.tvStep1)
+        tvStep2 = findViewById(R.id.tvStep2)
+        tvStep3 = findViewById(R.id.tvStep3)
+        btnStep1 = findViewById(R.id.btnStep1)
+        btnStep2 = findViewById(R.id.btnStep2)
         btnToggle = findViewById(R.id.btnToggle)
-        btnLogin = findViewById(R.id.btnLogin)
-        btnLogout = findViewById(R.id.btnLogout)
-        btnChannels = findViewById(R.id.btnChannels)
-        btnGrantPerm = findViewById(R.id.btnGrantPerm)
-        btnBattery = findViewById(R.id.btnBattery)
         llLog = findViewById(R.id.llLog)
 
-        btnLogin.setOnClickListener { startActivity(Intent(this, LoginActivity::class.java)) }
-        btnLogout.setOnClickListener { confirmLogout() }
-        btnToggle.setOnClickListener { toggleService() }
-        btnChannels.setOnClickListener { startActivity(Intent(this, ChannelsActivity::class.java)) }
-        btnGrantPerm.setOnClickListener { requestPermissions(requiredPerms, 100) }
-        btnBattery.setOnClickListener { requestBatteryExemption() }
-        findViewById<Button>(R.id.btnAutostart).setOnClickListener { showAutostartGuide() }
         findViewById<Button>(R.id.btnSettings).setOnClickListener {
             startActivity(Intent(this, SettingsActivity::class.java))
         }
-        findViewById<Button>(R.id.btnAbout).setOnClickListener {
-            startActivity(Intent(this, AboutActivity::class.java))
-        }
+        btnStep1.setOnClickListener { loginOrLogout() }
+        btnStep2.setOnClickListener { startActivity(Intent(this, ChannelsActivity::class.java)) }
+        btnToggle.setOnClickListener { toggleService() }
         findViewById<Button>(R.id.btnClearLog).setOnClickListener { ForwardLog.clear(this); refresh() }
     }
 
@@ -89,9 +76,60 @@ class MainActivity : AppCompatActivity() {
         ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED
     }
 
-    private fun isIgnoringBattery(): Boolean {
-        val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
-        return pm.isIgnoringBatteryOptimizations(packageName)
+    private fun refresh() {
+        val loggedIn = Prefs.isLoggedIn(this)
+        val running = Prefs.isRunning(this)
+
+        // ① 登录
+        if (loggedIn) {
+            setStep(tvStep1, true, getString(R.string.step1_done_fmt, Prefs.username(this)))
+            btnStep1.text = getString(R.string.btn_logout)
+        } else {
+            setStep(tvStep1, false, getString(R.string.step1_todo))
+            btnStep1.text = getString(R.string.btn_login)
+        }
+
+        // ③ 服务
+        setStep(tvStep3, running, getString(if (running) R.string.step3_running else R.string.step3_stopped))
+        btnToggle.text = getString(if (running) R.string.btn_stop else R.string.btn_start)
+
+        // ② 绑定 Telegram（需登录后向后端查询是否有已就绪的渠道）
+        btnStep2.isEnabled = loggedIn
+        if (!loggedIn) {
+            setStep(tvStep2, false, getString(R.string.step2_need_login))
+        } else {
+            setStep(tvStep2, false, getString(R.string.step2_checking))
+            checkStep2()
+        }
+
+        renderLog()
+    }
+
+    /** 向后端查是否已有"就绪(已绑定)"的渠道，异步更新第 2 步状态 */
+    private fun checkStep2() {
+        Thread {
+            val ready = when (val r = Api.listChannels(this)) {
+                is ApiResp.Ok -> {
+                    val arr = Api.channelsArray(r.body)
+                    (0 until arr.length()).any { arr.optJSONObject(it)?.optBoolean("ready") == true }
+                }
+                is ApiResp.Err -> false
+            }
+            runOnUiThread {
+                if (!Prefs.isLoggedIn(this)) return@runOnUiThread
+                setStep(tvStep2, ready, getString(if (ready) R.string.step2_done else R.string.step2_todo))
+            }
+        }.start()
+    }
+
+    private fun setStep(tv: TextView, done: Boolean, text: String) {
+        tv.text = (if (done) "✓ " else "○ ") + text
+        tv.setTextColor(if (done) green else grey)
+    }
+
+    private fun loginOrLogout() {
+        if (Prefs.isLoggedIn(this)) confirmLogout()
+        else startActivity(Intent(this, LoginActivity::class.java))
     }
 
     private fun confirmLogout() {
@@ -99,7 +137,7 @@ class MainActivity : AppCompatActivity() {
             .setTitle(R.string.logout_title)
             .setMessage(R.string.logout_msg)
             .setPositiveButton(R.string.logout) { _, _ ->
-                Thread { Api.logout(this) }.start() // best-effort revoke
+                Thread { Api.logout(this) }.start()
                 Prefs.get(this).edit().putBoolean(Prefs.KEY_RUNNING, false).apply()
                 stopService(Intent(this, ForwardService::class.java))
                 Prefs.clearSession(this)
@@ -130,79 +168,13 @@ class MainActivity : AppCompatActivity() {
         refresh()
     }
 
-    private fun requestBatteryExemption() {
-        if (isIgnoringBattery()) {
-            Toast.makeText(this, R.string.battery_ok, Toast.LENGTH_SHORT).show(); return
-        }
-        try {
-            startActivity(Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, Uri.parse("package:$packageName")))
-        } catch (_: Exception) {
-            startActivity(Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS))
-        }
-    }
-
-    private fun showAutostartGuide() {
-        AlertDialog.Builder(this)
-            .setTitle(R.string.autostart_title)
-            .setMessage(R.string.autostart_msg)
-            .setPositiveButton(R.string.autostart_open) { _, _ -> openAutostartSettings() }
-            .setNegativeButton(android.R.string.cancel, null)
-            .show()
-    }
-
-    private fun openAutostartSettings() {
-        val candidates = listOf(
-            "com.miui.securitycenter" to "com.miui.permcenter.autostart.AutoStartManagementActivity",
-            "com.huawei.systemmanager" to "com.huawei.systemmanager.startupmgr.ui.StartupNormalAppListActivity",
-            "com.coloros.safecenter" to "com.coloros.safecenter.permission.startup.StartupAppListActivity",
-            "com.vivo.permissionmanager" to "com.vivo.permissionmanager.activity.BgStartUpManagerActivity",
-            "com.oppo.safe" to "com.oppo.safe.permission.startup.StartupAppListActivity",
-        )
-        for ((pkg, cls) in candidates) {
-            try {
-                startActivity(Intent().setClassName(pkg, cls)); return
-            } catch (_: Exception) { /* 试下一个 */ }
-        }
-        try {
-            startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:$packageName")))
-        } catch (_: Exception) {}
-    }
-
-    private fun refresh() {
-        val loggedIn = Prefs.isLoggedIn(this)
-        val running = Prefs.isRunning(this)
-
-        if (loggedIn) {
-            tvUser.text = getString(R.string.user_logged_in_fmt, Prefs.username(this))
-            btnLogin.visibility = View.GONE
-            btnLogout.visibility = View.VISIBLE
-            btnToggle.isEnabled = true
-            btnChannels.isEnabled = true
-        } else {
-            tvUser.text = getString(R.string.user_not_logged_in)
-            btnLogin.visibility = View.VISIBLE
-            btnLogout.visibility = View.GONE
-            btnToggle.isEnabled = false
-            btnChannels.isEnabled = false
-        }
-
-        tvStatus.text = getString(if (running) R.string.status_running else R.string.status_stopped)
-        btnToggle.text = getString(if (running) R.string.btn_stop else R.string.btn_start)
-
-        tvPerm.text = getString(if (hasAllPerms()) R.string.perm_ok else R.string.perm_missing)
-        btnGrantPerm.visibility = if (hasAllPerms()) View.GONE else View.VISIBLE
-        tvBattery.text = getString(if (isIgnoringBattery()) R.string.battery_ok else R.string.battery_need)
-
-        renderLog()
-    }
-
     private fun renderLog() {
         llLog.removeAllViews()
         val logs = ForwardLog.all(this).take(100)
         if (logs.isEmpty()) {
             val tv = TextView(this).apply {
                 text = getString(R.string.log_empty)
-                setTextColor(0xFF888888.toInt())
+                setTextColor(grey)
                 setPadding(0, 24, 0, 24)
             }
             llLog.addView(tv)
@@ -216,7 +188,7 @@ class MainActivity : AppCompatActivity() {
             row.findViewById<TextView>(R.id.tvChannel).text = getString(R.string.log_to_server)
             val st = row.findViewById<TextView>(R.id.tvResult)
             if (e.ok) {
-                st.text = getString(R.string.log_ok); st.setTextColor(0xFF00E676.toInt())
+                st.text = getString(R.string.log_ok); st.setTextColor(green)
             } else {
                 st.text = getString(R.string.log_fail); st.setTextColor(0xFFFF5252.toInt())
             }

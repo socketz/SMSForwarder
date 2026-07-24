@@ -1,28 +1,54 @@
 package com.smsforwarder
 
+import android.Manifest
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.os.PowerManager
+import android.provider.Settings
 import android.widget.Button
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.google.android.material.switchmaterial.SwitchMaterial
 
 /**
- * 设置：兜底对账 + 日志保留 + （隐藏）后端地址覆盖（调试用）。
- * 渠道配置在 ChannelsActivity；这里不再有接口地址/渠道字段。
+ * 设置：权限与保活（权限 / 电池优化 / 自启动白名单）+ 兜底对账 + 日志保留 +
+ * 后端地址覆盖（调试）+ 关于。这些都从主界面挪进来，让主页保持三步引导的干净。
  */
 class SettingsActivity : AppCompatActivity() {
+
+    private lateinit var tvPerm: TextView
+    private lateinit var btnGrantPerm: Button
+    private lateinit var tvBattery: TextView
 
     private lateinit var swReconcile: SwitchMaterial
     private lateinit var etReconcileMin: EditText
     private lateinit var etLogKeep: EditText
     private lateinit var etBaseUrl: EditText
 
+    private val requiredPerms: Array<String>
+        get() = buildList {
+            add(Manifest.permission.RECEIVE_SMS)
+            add(Manifest.permission.READ_SMS)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+                add(Manifest.permission.POST_NOTIFICATIONS)
+        }.toTypedArray()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
         applyEdgeToEdgeInsets(findViewById(R.id.root))
 
+        tvPerm = findViewById(R.id.tvPerm)
+        btnGrantPerm = findViewById(R.id.btnGrantPerm)
+        tvBattery = findViewById(R.id.tvBattery)
         swReconcile = findViewById(R.id.swReconcile)
         etReconcileMin = findViewById(R.id.etReconcileMin)
         etLogKeep = findViewById(R.id.etLogKeep)
@@ -30,8 +56,77 @@ class SettingsActivity : AppCompatActivity() {
 
         findViewById<Button>(R.id.btnBack).setOnClickListener { finish() }
         findViewById<Button>(R.id.btnSave).setOnClickListener { save(); finish() }
+        btnGrantPerm.setOnClickListener { requestPermissions(requiredPerms, 100) }
+        findViewById<Button>(R.id.btnBattery).setOnClickListener { requestBatteryExemption() }
+        findViewById<Button>(R.id.btnAutostart).setOnClickListener { showAutostartGuide() }
+        findViewById<Button>(R.id.btnAbout).setOnClickListener {
+            startActivity(Intent(this, AboutActivity::class.java))
+        }
 
         load()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        refreshStatus()
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        refreshStatus()
+    }
+
+    private fun hasAllPerms(): Boolean = requiredPerms.all {
+        ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun isIgnoringBattery(): Boolean {
+        val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
+        return pm.isIgnoringBatteryOptimizations(packageName)
+    }
+
+    private fun refreshStatus() {
+        tvPerm.text = getString(if (hasAllPerms()) R.string.perm_ok else R.string.perm_missing)
+        btnGrantPerm.visibility = if (hasAllPerms()) Button.GONE else Button.VISIBLE
+        tvBattery.text = getString(if (isIgnoringBattery()) R.string.battery_ok else R.string.battery_need)
+    }
+
+    private fun requestBatteryExemption() {
+        if (isIgnoringBattery()) {
+            Toast.makeText(this, R.string.battery_ok, Toast.LENGTH_SHORT).show(); return
+        }
+        try {
+            startActivity(Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, Uri.parse("package:$packageName")))
+        } catch (_: Exception) {
+            startActivity(Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS))
+        }
+    }
+
+    private fun showAutostartGuide() {
+        AlertDialog.Builder(this)
+            .setTitle(R.string.autostart_title)
+            .setMessage(R.string.autostart_msg)
+            .setPositiveButton(R.string.autostart_open) { _, _ -> openAutostartSettings() }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    private fun openAutostartSettings() {
+        val candidates = listOf(
+            "com.miui.securitycenter" to "com.miui.permcenter.autostart.AutoStartManagementActivity",
+            "com.huawei.systemmanager" to "com.huawei.systemmanager.startupmgr.ui.StartupNormalAppListActivity",
+            "com.coloros.safecenter" to "com.coloros.safecenter.permission.startup.StartupAppListActivity",
+            "com.vivo.permissionmanager" to "com.vivo.permissionmanager.activity.BgStartUpManagerActivity",
+            "com.oppo.safe" to "com.oppo.safe.permission.startup.StartupAppListActivity",
+        )
+        for ((pkg, cls) in candidates) {
+            try {
+                startActivity(Intent().setClassName(pkg, cls)); return
+            } catch (_: Exception) { /* 试下一个 */ }
+        }
+        try {
+            startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:$packageName")))
+        } catch (_: Exception) {}
     }
 
     private fun load() {
