@@ -19,6 +19,7 @@
             android:textSize="24sp"
             android:textStyle="bold" />
 
+        <!-- 账号 + 状态 -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -28,19 +29,35 @@
             android:padding="16dp">
 
             <TextView
-                android:id="@+id/tvStatus"
+                android:id="@+id/tvUser"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="#FFFFFF"
-                android:textSize="18sp" />
+                android:textSize="16sp" />
 
             <TextView
-                android:id="@+id/tvChannels"
+                android:id="@+id/tvStatus"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:textColor="#AAAAAA"
                 android:textSize="14sp" />
+
+            <Button
+                android:id="@+id/btnLogin"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/btn_login" />
+
+            <Button
+                android:id="@+id/btnLogout"
+                style="?android:attr/borderlessButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/btn_logout"
+                android:textColor="#FF5252" />
         </LinearLayout>
 
         <Button
@@ -49,6 +66,14 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp" />
 
+        <Button
+            android:id="@+id/btnChannels"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/btn_channels" />
+
+        <!-- 权限/保活 -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -127,7 +152,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/recent_forwards"
+                android:text="@string/recent_uploads"
                 android:textColor="#FFFFFF"
                 android:textSize="16sp"
                 android:textStyle="bold" />

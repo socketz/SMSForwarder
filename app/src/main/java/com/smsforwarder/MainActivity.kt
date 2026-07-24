@@ -23,10 +23,13 @@ import androidx.core.content.ContextCompat
 class MainActivity : AppCompatActivity() {
 
     private lateinit var tvStatus: TextView
-    private lateinit var tvChannels: TextView
+    private lateinit var tvUser: TextView
     private lateinit var tvPerm: TextView
     private lateinit var tvBattery: TextView
     private lateinit var btnToggle: Button
+    private lateinit var btnLogin: Button
+    private lateinit var btnLogout: Button
+    private lateinit var btnChannels: Button
     private lateinit var btnGrantPerm: Button
     private lateinit var btnBattery: Button
     private lateinit var llLog: LinearLayout
@@ -45,15 +48,21 @@ class MainActivity : AppCompatActivity() {
         applyEdgeToEdgeInsets(findViewById(R.id.root))
 
         tvStatus = findViewById(R.id.tvStatus)
-        tvChannels = findViewById(R.id.tvChannels)
+        tvUser = findViewById(R.id.tvUser)
         tvPerm = findViewById(R.id.tvPerm)
         tvBattery = findViewById(R.id.tvBattery)
         btnToggle = findViewById(R.id.btnToggle)
+        btnLogin = findViewById(R.id.btnLogin)
+        btnLogout = findViewById(R.id.btnLogout)
+        btnChannels = findViewById(R.id.btnChannels)
         btnGrantPerm = findViewById(R.id.btnGrantPerm)
         btnBattery = findViewById(R.id.btnBattery)
         llLog = findViewById(R.id.llLog)
 
+        btnLogin.setOnClickListener { startActivity(Intent(this, LoginActivity::class.java)) }
+        btnLogout.setOnClickListener { confirmLogout() }
         btnToggle.setOnClickListener { toggleService() }
+        btnChannels.setOnClickListener { startActivity(Intent(this, ChannelsActivity::class.java)) }
         btnGrantPerm.setOnClickListener { requestPermissions(requiredPerms, 100) }
         btnBattery.setOnClickListener { requestBatteryExemption() }
         findViewById<Button>(R.id.btnAutostart).setOnClickListener { showAutostartGuide() }
@@ -63,9 +72,7 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.btnAbout).setOnClickListener {
             startActivity(Intent(this, AboutActivity::class.java))
         }
-        findViewById<Button>(R.id.btnClearLog).setOnClickListener {
-            ForwardLog.clear(this); refresh()
-        }
+        findViewById<Button>(R.id.btnClearLog).setOnClickListener { ForwardLog.clear(this); refresh() }
     }
 
     override fun onResume() {
@@ -73,11 +80,7 @@ class MainActivity : AppCompatActivity() {
         refresh()
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         refresh()
     }
@@ -91,7 +94,25 @@ class MainActivity : AppCompatActivity() {
         return pm.isIgnoringBatteryOptimizations(packageName)
     }
 
+    private fun confirmLogout() {
+        AlertDialog.Builder(this)
+            .setTitle(R.string.logout_title)
+            .setMessage(R.string.logout_msg)
+            .setPositiveButton(R.string.logout) { _, _ ->
+                Thread { Api.logout(this) }.start() // best-effort revoke
+                Prefs.get(this).edit().putBoolean(Prefs.KEY_RUNNING, false).apply()
+                stopService(Intent(this, ForwardService::class.java))
+                Prefs.clearSession(this)
+                refresh()
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
     private fun toggleService() {
+        if (!Prefs.isLoggedIn(this)) {
+            startActivity(Intent(this, LoginActivity::class.java)); return
+        }
         if (Prefs.isRunning(this)) {
             Prefs.get(this).edit().putBoolean(Prefs.KEY_RUNNING, false).apply()
             stopService(Intent(this, ForwardService::class.java))
@@ -111,20 +132,15 @@ class MainActivity : AppCompatActivity() {
 
     private fun requestBatteryExemption() {
         if (isIgnoringBattery()) {
-            Toast.makeText(this, R.string.battery_ok, Toast.LENGTH_SHORT).show()
-            return
+            Toast.makeText(this, R.string.battery_ok, Toast.LENGTH_SHORT).show(); return
         }
         try {
-            startActivity(Intent(
-                Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
-                Uri.parse("package:$packageName")
-            ))
+            startActivity(Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, Uri.parse("package:$packageName")))
         } catch (_: Exception) {
             startActivity(Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS))
         }
     }
 
-    /** 国产 ROM 自启动/后台冻结白名单引导：尝试打开常见入口，失败回退到应用详情页 */
     private fun showAutostartGuide() {
         AlertDialog.Builder(this)
             .setTitle(R.string.autostart_title)
@@ -135,7 +151,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun openAutostartSettings() {
-        // 各厂商自启动管理界面组件名（尽力而为，打不开就回退）
         val candidates = listOf(
             "com.miui.securitycenter" to "com.miui.permcenter.autostart.AutoStartManagementActivity",
             "com.huawei.systemmanager" to "com.huawei.systemmanager.startupmgr.ui.StartupNormalAppListActivity",
@@ -145,34 +160,37 @@ class MainActivity : AppCompatActivity() {
         )
         for ((pkg, cls) in candidates) {
             try {
-                startActivity(Intent().setClassName(pkg, cls))
-                return
+                startActivity(Intent().setClassName(pkg, cls)); return
             } catch (_: Exception) { /* 试下一个 */ }
         }
-        // 回退：应用详情页，用户自行进入「自启动/电池」设置
         try {
-            startActivity(Intent(
-                Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                Uri.parse("package:$packageName")
-            ))
+            startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:$packageName")))
         } catch (_: Exception) {}
     }
 
     private fun refresh() {
+        val loggedIn = Prefs.isLoggedIn(this)
         val running = Prefs.isRunning(this)
+
+        if (loggedIn) {
+            tvUser.text = getString(R.string.user_logged_in_fmt, Prefs.username(this))
+            btnLogin.visibility = View.GONE
+            btnLogout.visibility = View.VISIBLE
+            btnToggle.isEnabled = true
+            btnChannels.isEnabled = true
+        } else {
+            tvUser.text = getString(R.string.user_not_logged_in)
+            btnLogin.visibility = View.VISIBLE
+            btnLogout.visibility = View.GONE
+            btnToggle.isEnabled = false
+            btnChannels.isEnabled = false
+        }
+
         tvStatus.text = getString(if (running) R.string.status_running else R.string.status_stopped)
         btnToggle.text = getString(if (running) R.string.btn_stop else R.string.btn_start)
 
-        val mark = { on: Boolean -> if (on) getString(R.string.ep_set) else getString(R.string.ep_unset) }
-        tvChannels.text = getString(
-            R.string.endpoints_fmt,
-            mark(Prefs.primaryUrl(this).isNotBlank()),
-            mark(Prefs.backupUrl(this).isNotBlank()),
-        )
-
         tvPerm.text = getString(if (hasAllPerms()) R.string.perm_ok else R.string.perm_missing)
         btnGrantPerm.visibility = if (hasAllPerms()) View.GONE else View.VISIBLE
-
         tvBattery.text = getString(if (isIgnoringBattery()) R.string.battery_ok else R.string.battery_need)
 
         renderLog()
@@ -193,21 +211,14 @@ class MainActivity : AppCompatActivity() {
         val inflater = LayoutInflater.from(this)
         for (e in logs) {
             val row = inflater.inflate(R.layout.item_log, llLog, false)
-            row.findViewById<TextView>(R.id.tvTime).text =
-                DateFormat.format("MM-dd HH:mm:ss", e.time)
+            row.findViewById<TextView>(R.id.tvTime).text = DateFormat.format("MM-dd HH:mm:ss", e.time)
             row.findViewById<TextView>(R.id.tvSender).text = e.sender
-            row.findViewById<TextView>(R.id.tvChannel).text = when (e.channel) {
-                Prefs.CH_PRIMARY -> getString(R.string.log_via_primary)
-                Prefs.CH_BACKUP -> getString(R.string.log_via_backup)
-                else -> e.channel
-            }
+            row.findViewById<TextView>(R.id.tvChannel).text = getString(R.string.log_to_server)
             val st = row.findViewById<TextView>(R.id.tvResult)
             if (e.ok) {
-                st.text = getString(R.string.log_ok)
-                st.setTextColor(0xFF00E676.toInt())
+                st.text = getString(R.string.log_ok); st.setTextColor(0xFF00E676.toInt())
             } else {
-                st.text = getString(R.string.log_fail)
-                st.setTextColor(0xFFFF5252.toInt())
+                st.text = getString(R.string.log_fail); st.setTextColor(0xFFFF5252.toInt())
             }
             row.findViewById<TextView>(R.id.tvDetail).text = e.detail
             llLog.addView(row)

@@ -11,25 +11,24 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 /**
- * 兜底对账：周期性扫描短信收件箱，把「广播漏掉」的短信补发。
- * 依赖去重集合避免与广播路径重复转发。无 READ_SMS 权限时安静跳过。
+ * 兜底对账：周期性扫描短信收件箱，把「广播漏掉」的短信补发上传。
+ * 依赖去重集合避免与广播路径重复。无 READ_SMS 权限或未登录时安静跳过。
  */
 class ReconcileWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(ctx, params) {
 
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         val ctx = applicationContext
+        if (!Prefs.isLoggedIn(ctx)) return@withContext Result.success()
         if (ContextCompat.checkSelfPermission(ctx, Manifest.permission.READ_SMS)
             != PackageManager.PERMISSION_GRANTED
         ) {
-            return@withContext Result.success()  // 没权限就不做，等用户去授权
+            return@withContext Result.success()
         }
-        if (!Prefs.isConfigured(ctx)) return@withContext Result.success()
 
         val p = Prefs.get(ctx)
         val lastSeen = p.getLong(Prefs.KEY_LAST_SEEN_TS, 0L)
 
-        // 首次运行：只把游标初始化到「现在」，不回补历史短信（否则会把安装前的旧短信全量转发）。
-        // 之后只补发游标之后、被实时广播漏掉的短信。
+        // 首次运行只把游标初始化到"现在"，不回补历史短信
         if (lastSeen == 0L) {
             p.edit().putLong(Prefs.KEY_LAST_SEEN_TS, System.currentTimeMillis()).apply()
             return@withContext Result.success()
@@ -53,7 +52,7 @@ class ReconcileWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(
                     if (body.isBlank()) continue
                     if (Prefs.seenContains(ctx, sender, body, date)) continue
                     Prefs.seenAdd(ctx, sender, body, date)
-                    WorkScheduler.enqueueForward(ctx, Sms(sender, body, date))
+                    WorkScheduler.enqueueUpload(ctx, Sms(sender, body, date))
                 }
             }
             p.edit().putLong(Prefs.KEY_LAST_SEEN_TS, maxDate).apply()

@@ -76,8 +76,8 @@ class ForwardService : Service() {
         val logs = ForwardLog.all(this)
         val total = logs.size
         val failed = logs.count { !it.ok }
-        val text = if (!Prefs.isConfigured(this)) {
-            getString(R.string.notif_not_configured)
+        val text = if (!Prefs.isLoggedIn(this)) {
+            getString(R.string.notif_not_logged_in)
         } else {
             getString(R.string.notif_running_fmt, total, failed)
         }

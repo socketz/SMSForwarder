@@ -5,26 +5,32 @@
     <!-- Notification -->
     <string name="notif_channel_name">Forwarding status</string>
     <string name="notif_channel_desc">Ongoing status of the SMS forwarding service</string>
-    <string name="notif_not_configured">No endpoint configured — open the app to set one up</string>
-    <string name="notif_running_fmt">%1$d sent · %2$d failed</string>
+    <string name="notif_not_logged_in">Not logged in — open the app to sign in</string>
+    <string name="notif_running_fmt">%1$d uploaded · %2$d failed</string>
 
-    <!-- Main -->
+    <!-- Account / status -->
+    <string name="user_logged_in_fmt">Signed in: %1$s</string>
+    <string name="user_not_logged_in">Not signed in</string>
     <string name="status_running">Running</string>
     <string name="status_stopped">Stopped</string>
-    <string name="endpoints_fmt">Primary: %1$s · Backup: %2$s</string>
-    <string name="ep_set">set</string>
-    <string name="ep_unset">unset</string>
     <string name="btn_start">Start service</string>
     <string name="btn_stop">Stop service</string>
+    <string name="btn_login">Sign in / Register</string>
+    <string name="btn_logout">Sign out</string>
+    <string name="btn_channels">Manage channels</string>
+    <string name="btn_register">Register a new account</string>
 
+    <string name="logout_title">Sign out?</string>
+    <string name="logout_msg">The service will stop and this device will be signed out. Incoming SMS will no longer be forwarded until you sign in again.</string>
+    <string name="logout">Sign out</string>
+
+    <!-- Permissions / survival -->
     <string name="perm_ok">✓ SMS &amp; notification permissions granted</string>
     <string name="perm_missing">✗ SMS / notification permission missing</string>
     <string name="btn_grant_perm">Grant permissions</string>
-
     <string name="battery_ok">✓ Battery optimization: exempted</string>
     <string name="battery_need">✗ Not exempt from battery optimization (may be killed)</string>
     <string name="btn_battery">Ignore battery optimization</string>
-
     <string name="btn_autostart">Auto-start / background whitelist</string>
     <string name="autostart_title">Keep the app alive</string>
     <string name="autostart_msg">On Xiaomi / Huawei / OPPO / vivo and similar ROMs, you must manually allow this app to auto-start and to run in the background, otherwise the system will freeze or kill it and forwarding will stop.\n\nTap Open to jump to the auto-start settings (or your app details), then enable auto-start and remove any background restriction.</string>
@@ -32,39 +38,63 @@
 
     <string name="btn_settings">Settings</string>
     <string name="btn_about">About</string>
-    <string name="recent_forwards">Recent forwards</string>
+    <string name="recent_uploads">Recent uploads</string>
     <string name="btn_clear_log">Clear</string>
-    <string name="log_empty">No forwards yet</string>
+    <string name="log_empty">No uploads yet</string>
     <string name="log_ok">OK</string>
     <string name="log_fail">FAIL</string>
-    <string name="log_via_primary">primary</string>
-    <string name="log_via_backup">backup</string>
-
+    <string name="log_to_server">→ server</string>
     <string name="toast_need_perm">Grant SMS and notification permissions first</string>
+
+    <!-- Login -->
+    <string name="login_title">Sign in</string>
+    <string name="login_hint">Sign in once; this device stays signed in. Configure channels after signing in.</string>
+    <string name="login_working">Working…</string>
+    <string name="login_username">Username</string>
+    <string name="login_password">Password</string>
+    <string name="login_need_fields">Enter username and password</string>
+    <string name="login_ok">Signed in</string>
+    <string name="login_fail_fmt">Failed: %1$s</string>
+
+    <!-- Channels -->
+    <string name="ch_add_telegram">+ Telegram</string>
+    <string name="ch_add_wechat">+ WeChat</string>
+    <string name="ch_telegram">Telegram</string>
+    <string name="ch_wechat">WeChat (PushPlus)</string>
+    <string name="ch_ready">✓ ready</string>
+    <string name="ch_tg_unbound">not bound — tap Bind</string>
+    <string name="ch_not_ready">not configured</string>
+    <string name="ch_empty">No channels yet. Add Telegram or WeChat above.</string>
+    <string name="ch_load_fail_fmt">Failed to load: %1$s</string>
+    <string name="ch_op_fail_fmt">Failed: %1$s</string>
+    <string name="ch_added_tg">Telegram channel added — tap Bind to connect it.</string>
+    <string name="ch_wechat_token_hint">PushPlus token</string>
+    <string name="ch_wechat_help">Get a token at PushPlus (pushplus.plus): scan the QR with WeChat, follow the official account, then copy your token here.</string>
+    <string name="ch_wechat_token_empty">Enter the token first</string>
+    <string name="ch_bind">Bind</string>
+    <string name="ch_bind_fail">Could not get a bind link</string>
+    <string name="ch_bind_open_tg">Opening Telegram — tap Start to finish binding, then come back.</string>
+    <string name="ch_bind_no_tg">Open this link in Telegram</string>
+    <string name="ch_testing">Sending test…</string>
+    <string name="ch_test_ok">Test delivered</string>
+    <string name="ch_test_fail_fmt">Test failed: %1$s</string>
+    <string name="ch_delete">Delete</string>
+    <string name="ch_delete_title">Delete channel?</string>
+    <string name="ch_delete_msg">This channel will stop receiving forwarded SMS.</string>
 
     <!-- Settings -->
     <string name="btn_back">Back</string>
     <string name="btn_save">Save</string>
-    <string name="cfg_endpoints_title">Forwarding endpoints</string>
-    <string name="cfg_endpoints_desc">Each SMS is POSTed as JSON to the primary endpoint; if it fails, it falls back to the backup. Your server decides where to relay it (Telegram, email, …).</string>
-    <string name="cfg_primary_url">Primary endpoint URL</string>
-    <string name="cfg_backup_url">Backup endpoint URL (optional)</string>
-    <string name="cfg_http_headers">Custom headers, shared by both (one \"Key: Value\" per line, optional)</string>
-    <string name="btn_test_primary">Test primary</string>
-    <string name="btn_test_backup">Test backup</string>
+    <string name="btn_test">Test</string>
     <string name="cfg_reconcile_enable">Periodic reconciliation (backstop)</string>
-    <string name="cfg_reconcile_desc">Periodically scan the SMS inbox and re-send any message missed by the real-time broadcast. Requires READ_SMS.</string>
+    <string name="cfg_reconcile_desc">Periodically scan the SMS inbox and re-upload any message missed by the real-time broadcast. Requires READ_SMS.</string>
     <string name="cfg_reconcile_min">Interval (minutes, min 15)</string>
     <string name="cfg_log_keep">Log entries to keep (20–2000)</string>
-
+    <string name="cfg_base_url">Backend URL (advanced)</string>
+    <string name="cfg_base_url_desc">Leave empty to use the default. Override only for local/staging testing.</string>
     <string name="toast_saved">Saved</string>
-    <string name="toast_testing">Sending test…</string>
-    <string name="toast_test_ok">Test sent successfully</string>
-    <string name="toast_test_fail">Test failed: %1$s</string>
-    <string name="toast_url_empty">Enter the URL first</string>
-    <string name="test_body">This is a test message from SMS Forwarder</string>
 
     <!-- About -->
     <string name="about_version">Version %1$s</string>
-    <string name="about_body">Reads incoming SMS and forwards them to your own server endpoint. The app stays deliberately thin: it does not talk to Telegram or email directly — it just POSTs each SMS as JSON to your primary endpoint, falling back to a backup endpoint if the primary fails. Your server decides where to relay it (Telegram, email, or anything else), so adding channels never requires rebuilding the app.\n\nCapture: a real-time SMS broadcast receiver (works even when the app process has been killed — the system relaunches it to deliver the broadcast), plus an optional periodic reconciliation that re-sends anything missed.\n\nForwarding: fully decoupled from capture. Each message is queued to WorkManager with exponential-backoff retries that survive process death and reboot.\n\nSurvival: a persistent foreground service, auto-restart on boot, battery-optimization exemption, and OEM auto-start whitelisting keep it running long-term.\n\nFor personal use. Not published to any app store.</string>
+    <string name="about_body">Reads incoming SMS and uploads them to your account on the SMS Forwarder backend, which forwards each message to the channels you configured (Telegram / WeChat).\n\nSign in once on this phone; the device stays signed in. Configure channels in the app — they are stored on the server and tied to your account, so messages are never delivered to the wrong user.\n\nCapture: a real-time SMS broadcast receiver (works even when the app process has been killed), plus an optional periodic reconciliation that re-uploads anything missed. Upload is queued via WorkManager and retried until it succeeds, surviving process death and reboot.\n\nSurvival: a persistent foreground service, auto-restart on boot, battery-optimization exemption, and OEM auto-start whitelisting keep it running long-term.\n\nFor personal use.</string>
 </resources>
