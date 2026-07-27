@@ -1,12 +1,12 @@
 <div align="center">
   <h1>SMS Forwarder</h1>
   <p>
-    <strong>Forward incoming SMS to your own server — reliably, in the background</strong>
+    <strong>Forward incoming SMS to your Telegram — reliably, in the background</strong>
   </p>
   <p>
-    Reads the text messages your phone receives and uploads each one to your self-hosted
-    backend, which relays it to your channels (Telegram). Built for a phone left plugged
-    in at home so your SMS follow you while you are away.
+    Reads the text messages your phone receives and uploads each one to the SMS Forwarder
+    backend, which relays it to your Telegram. Built for a phone left plugged in at home so
+    your SMS follow you while you are away.
   </p>
   <p>
     🌐 <a href="https://smsforwarder.shuttlelab.org">smsforwarder.shuttlelab.org</a>
@@ -14,6 +14,7 @@
     🔌 Backend: <a href="https://github.com/ShuttleLab/smsforwarder-api">smsforwarder-api</a>
   </p>
   <img src="docs/screenshot.jpg" alt="SMS Forwarder — home screen" width="300" />
+  <img src="docs/screenshot1.jpg" alt="SMS Forwarder — app screen" width="300" />
 </div>
 
 <div align="center">
@@ -28,9 +29,9 @@
 ## About
 
 SMS Forwarder is a small Android app that captures incoming SMS and **POSTs each one as
-JSON to your own backend**, which decides where to relay it. It is a deliberately **thin
-client**: it holds no channel tokens and talks to no messaging service directly — adding
-or changing channels is done on the server and never requires rebuilding the app.
+JSON to the SMS Forwarder backend**, which relays it to your Telegram. It is a deliberately
+**thin client**: it holds no channel tokens and talks to no messaging service directly —
+adding or changing channels is done on the server and never requires rebuilding the app.
 
 The design goal is reliability on a **plugged-in, unattended phone** — including on
 aggressive Chinese ROMs (Huawei / HarmonyOS) where background restrictions routinely break
@@ -39,7 +40,7 @@ naive SMS apps. It is **not** published to any app store; it is for personal use
 ## Key Features
 
 - **Real-time capture that survives aggressive ROMs** — an incoming-SMS broadcast receiver *plus* a foreground-service poll of the SMS inbox (every few seconds, configurable). Capture uses a monotonic `_id` cursor, so nothing is missed even where the system withholds SMS broadcasts or the message timestamp lags the phone clock.
-- **Thin client** — no Telegram/email tokens in the app; it only uploads to your backend. Channel routing lives server-side.
+- **Thin client** — no channel tokens in the app; it only uploads to the backend. Channel routing lives server-side.
 - **Reliable delivery** — each SMS is uploaded directly from the live foreground service (not via WorkManager, which Huawei throttles), retried until it succeeds; the server deduplicates with an idempotency key so nothing is delivered twice.
 - **Long-term survival** — persistent foreground service, auto-restart on boot, battery-optimization exemption, an OEM auto-start whitelist guide, and an optional "silent-audio" keep-alive for extra resistance to being killed.
 - **Guided setup** — a clean three-step home screen: ① sign in / register → ② bind Telegram → ③ start the service, each with a ✓ when done.
@@ -58,10 +59,13 @@ naive SMS apps. It is **not** published to any app store; it is for personal use
 
 ## Getting Started
 
-### Requires the backend
+### Backend — already running
 
-This app needs its companion server, **smsforwarder-api**, reachable at the URL the app is
-built with (default `https://smsforwarder-api.shuttlelab.org`). See that project for setup.
+The released APK is preconfigured to talk to the **ShuttleLab-operated backend** at
+`smsforwarder-api.shuttlelab.org`, so it works out of the box — just install, sign in, and
+bind Telegram. If you build from source you can point it at another instance in the app's
+Settings (the companion server is
+[smsforwarder-api](https://github.com/ShuttleLab/smsforwarder-api)).
 
 ### Install
 
