@@ -11,7 +11,7 @@
   <p>
     🌐 <a href="https://smsforwarder.shuttlelab.org">smsforwarder.shuttlelab.org</a>
     &nbsp;·&nbsp;
-    🔌 Backend: <a href="https://github.com/ShuttleLab">smsforwarder-api</a>
+    🔌 Backend: <a href="https://github.com/ShuttleLab/smsforwarder-api">smsforwarder-api</a>
   </p>
 </div>
 
