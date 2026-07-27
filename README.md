@@ -1,77 +1,109 @@
 <div align="center">
   <h1>SMS Forwarder</h1>
-  <p><strong>把收到的短信实时转发到你自己的服务器接口的 Android App</strong></p>
-  <p>Reads incoming SMS and POSTs them to your own server endpoint — in real time, reliably, long-running in the background.</p>
+  <p>
+    <strong>Forward incoming SMS to your own server — reliably, in the background</strong>
+  </p>
+  <p>
+    Reads the text messages your phone receives and uploads each one to your self-hosted
+    backend, which relays it to your channels (Telegram). Built for a phone left plugged
+    in at home so your SMS follow you while you are away.
+  </p>
+  <p>
+    🌐 <a href="https://smsforwarder.shuttlelab.org">smsforwarder.shuttlelab.org</a>
+    &nbsp;·&nbsp;
+    🔌 Backend: <a href="https://github.com/ShuttleLab">smsforwarder-api</a>
+  </p>
 </div>
 
-## 这是什么
+<div align="center">
 
-一个**自用**的短信转发工具（不上架应用商店）：手机放家里插电常开，收到的短信实时 POST 到**你自己的服务器接口**。
+![Android](https://img.shields.io/badge/Android-8.0%2B-3DDC84?style=flat-square&logo=android)
+![Kotlin](https://img.shields.io/badge/Kotlin-1.9-7F52FF?style=flat-square&logo=kotlin)
+![Material](https://img.shields.io/badge/Material_Components-1.10-757575?style=flat-square&logo=materialdesign)
+![License](https://img.shields.io/badge/License-Personal_use-blue?style=flat-square)
 
-App 刻意保持**轻量瘦客户端**：它**不直接对接 Telegram / 邮件**，只负责把短信发到你的接口。再往哪儿转发（Telegram、邮件或其他）**由服务器端决定**——这样加渠道永远不用重新编译 App。
+</div>
 
-- **主备降级**：配置**主接口 + 备用接口**。每条短信先发主接口，主接口挂了才降级发备用接口，两个都失败才由 WorkManager 稍后重试。
-- **实时捕获**：短信广播接收器。即使 App 进程被系统杀掉，来短信时系统也会把它拉起来送广播——所以"接住短信"这一环比服务存活更稳。
-- **兜底对账**：可选的周期性任务，扫描短信收件箱，补发被实时广播漏掉的短信（需读取短信权限）。
-- **转发与捕获解耦**：每条短信入队到 WorkManager，失败按**指数退避重试**，并且**能跨进程被杀与重启自动恢复**，不丢消息。
-- **长期存活**：常驻前台服务 + 开机自启 + 电池优化豁免 + 厂商自启动白名单引导。
+## About
 
-## 转发格式
+SMS Forwarder is a small Android app that captures incoming SMS and **POSTs each one as
+JSON to your own backend**, which decides where to relay it. It is a deliberately **thin
+client**: it holds no channel tokens and talks to no messaging service directly — adding
+or changing channels is done on the server and never requires rebuilding the app.
 
-向你配置的接口 `POST` 一段 JSON（可自定义请求头，主备接口共用）：
+The design goal is reliability on a **plugged-in, unattended phone** — including on
+aggressive Chinese ROMs (Huawei / HarmonyOS) where background restrictions routinely break
+naive SMS apps. It is **not** published to any app store; it is for personal use.
 
-```json
-{
-  "sender": "10086",
-  "content": "您的验证码是 123456",
-  "timestamp": 1690000000000,
-  "receivedAt": "2026-07-23T12:00:00+0800"
-}
+## Key Features
+
+- **Real-time capture that survives aggressive ROMs** — an incoming-SMS broadcast receiver *plus* a foreground-service poll of the SMS inbox (every few seconds, configurable). Capture uses a monotonic `_id` cursor, so nothing is missed even where the system withholds SMS broadcasts or the message timestamp lags the phone clock.
+- **Thin client** — no Telegram/email tokens in the app; it only uploads to your backend. Channel routing lives server-side.
+- **Reliable delivery** — each SMS is uploaded directly from the live foreground service (not via WorkManager, which Huawei throttles), retried until it succeeds; the server deduplicates with an idempotency key so nothing is delivered twice.
+- **Long-term survival** — persistent foreground service, auto-restart on boot, battery-optimization exemption, an OEM auto-start whitelist guide, and an optional "silent-audio" keep-alive for extra resistance to being killed.
+- **Guided setup** — a clean three-step home screen: ① sign in / register → ② bind Telegram → ③ start the service, each with a ✓ when done.
+- **Account-scoped** — sign in once with username + password; the device stays signed in via a long-lived, revocable token. Your bindings are tied to your account, so messages never reach the wrong user.
+- **Built-in diagnostics** — an activity log (bounded, self-pruning) and an "inspect SMS inbox" tool for verifying capture on a headless phone.
+- **Bilingual** — English and 中文, with an in-app language switch.
+
+## Tech Stack
+
+- **Language:** Kotlin
+- **Platform:** Android SDK (minSdk 26 / targetSdk 36)
+- **UI:** Material Components, View-based layouts
+- **Concurrency:** Kotlin Coroutines; WorkManager (periodic reconcile backstop only)
+- **Networking:** raw `HttpURLConnection` (no networking library)
+- **CI/CD:** GitHub Actions
+
+## Getting Started
+
+### Requires the backend
+
+This app needs its companion server, **smsforwarder-api**, reachable at the URL the app is
+built with (default `https://smsforwarder-api.shuttlelab.org`). See that project for setup.
+
+### Install
+
+Grab the debug APK from the latest **Build APK** run under [Actions](../../actions)
+(artifact `SMSForwarder-debug`), or a signed APK from [Releases](../../releases). You may
+need to allow installation from unknown sources; on Huawei, disable "Pure Mode" first.
+
+After installing: grant SMS + notification permissions, sign in, bind Telegram, tap
+**Start service**, then allow **battery-optimization exemption** and **auto-start** (the
+decisive step on Chinese ROMs).
+
+### Build from Source
+
+#### Prerequisites
+
+- JDK 17
+- Android SDK (or Android Studio)
+
+#### Build
+
+```bash
+git clone https://github.com/ShuttleLab/SMSForwarder.git
+cd SMSForwarder
+./gradlew assembleDebug
+# APK at app/build/outputs/apk/debug/app-debug.apk
 ```
 
-服务器端返回 `2xx` 视为成功。你在服务器上收到后，自行分发到 Telegram / 邮件 / 企业微信 / 任意渠道。
+## Releases
 
-## 用法
-
-1. 安装 APK（见下），首次打开授予**短信 + 通知**权限。
-2. 进"设置"填**主接口 URL**（和可选的**备用接口 URL**、自定义请求头），用"测试主接口/测试备用"验证连通。
-3. 回主界面点"启动服务"。
-4. **重要**：点"忽略电池优化"和"自启动 / 后台白名单"，按引导把本 App 加白——这是国产 ROM（尤其华为）上能否长期存活的关键。
-
-## 构建（靠 GitHub Actions，无需本地环境）
-
-- **Debug APK**：推送到 `main`/`master` 分支后，在 Actions → "Build APK" 的 artifact 里下载 `SMSForwarder-debug`。
-- **签名 Release APK**：打 `v*` tag 触发，构建**签名** APK 并发布到 GitHub Releases。
+Pushing a `v*` tag triggers a GitHub Actions workflow that builds a **signed release APK**
+and publishes it to GitHub Releases. Signing secrets (`KEYSTORE_BASE64`,
+`KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD`) are configured in the repository settings;
+when unset, the release build falls back to debug signing so it never fails.
 
 ```bash
 git tag v1.0.0
 git push origin v1.0.0
 ```
 
-### Release 签名密钥（一次性设置）
+## License
 
-在 GitHub 仓库 Settings → Secrets and variables → Actions 添加：
+For personal use. Not published to any app store.
 
-| Secret | 说明 |
-| --- | --- |
-| `KEYSTORE_BASE64` | keystore 文件的 base64（`base64 -i release.jks`） |
-| `KEYSTORE_PASSWORD` | keystore 密码 |
-| `KEY_ALIAS` | key 别名 |
-| `KEY_PASSWORD` | key 密码 |
-
-生成 keystore：
-
-```bash
-keytool -genkeypair -v -keystore release.jks -keyalg RSA -keysize 2048 \
-  -validity 10000 -alias smsforwarder
-```
-
-无密钥时，本地 / CI 的 release 构建会自动回退到 debug 签名，不会报错。
-
-## 技术栈
-
-- Kotlin · minSdk 26 / targetSdk 36 · Material Components（View 体系）
-- Kotlin Coroutines · WorkManager（持久化转发队列 + 重试）
-- CI/CD：GitHub Actions
-
-供个人使用。
+<div align="center">
+  Built by <a href="https://github.com/ShuttleLab">ShuttleLab</a>
+</div>
