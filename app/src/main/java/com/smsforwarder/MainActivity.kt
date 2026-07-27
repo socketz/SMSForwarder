@@ -7,8 +7,6 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.os.PowerManager
 import android.provider.Settings
 import android.text.format.DateFormat
@@ -43,15 +41,6 @@ class MainActivity : AppCompatActivity() {
     /** 用户点了「开启服务」但还缺权限，授权回来后继续启动 */
     private var pendingStart = false
 
-    /** 状态灯自动刷新：停留在首页时每 20 秒 ping 一次，离开页面即停 */
-    private val handler = Handler(Looper.getMainLooper())
-    private val pingTick = object : Runnable {
-        override fun run() {
-            pingBackend(showChecking = false)   // 定时刷新不闪"检查中"，静默更新结果
-            handler.postDelayed(this, 20_000)
-        }
-    }
-
     private val requiredPerms: Array<String>
         get() = buildList {
             add(Manifest.permission.RECEIVE_SMS)
@@ -74,6 +63,7 @@ class MainActivity : AppCompatActivity() {
         llLog = findViewById(R.id.llLog)
         tvBackend = findViewById(R.id.tvBackend)
         tvBackend.setOnClickListener { pingBackend() }
+        findViewById<Button>(R.id.btnBackendCheck).setOnClickListener { pingBackend() }
 
         findViewById<Button>(R.id.btnSettings).setOnClickListener {
             startActivity(Intent(this, SettingsActivity::class.java))
@@ -87,23 +77,13 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         refresh()
-        pingBackend()                       // 立即探测一次（显示"检查中"）
-        handler.removeCallbacks(pingTick)
-        handler.postDelayed(pingTick, 20_000)  // 之后每 20 秒静默自动刷新
+        pingBackend()   // 打开界面时自动检测一次；之后由用户点「检测」按钮手动刷新
     }
 
-    override fun onPause() {
-        super.onPause()
-        handler.removeCallbacks(pingTick)   // 离开首页停掉轮询
-    }
-
-    /** 探测后端是否可达，把结果显示成 🟢/🔴。网络在后台线程做。
-     *  showChecking：首次/手动点时先显示"检查中"；定时静默刷新则不闪。 */
-    private fun pingBackend(showChecking: Boolean = true) {
-        if (showChecking) {
-            tvBackend.text = getString(R.string.backend_checking)
-            tvBackend.setTextColor(grey)
-        }
+    /** 探测后端是否可达，把结果显示成 🟢/🔴（带本次检测时间）。网络在后台线程做。 */
+    private fun pingBackend() {
+        tvBackend.text = getString(R.string.backend_checking)
+        tvBackend.setTextColor(grey)
         Thread {
             val ok = Api.health(this)
             runOnUiThread {

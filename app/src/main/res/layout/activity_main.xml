@@ -44,19 +44,36 @@
             android:textColor="#888888"
             android:textSize="13sp" />
 
-        <!-- 后端连通状态灯（点一下重新检查） -->
-        <TextView
-            android:id="@+id/tvBackend"
+        <!-- 后端连通状态 + 手动「检测」按钮 -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:background="@drawable/card_bg"
-            android:clickable="true"
-            android:focusable="true"
-            android:padding="12dp"
-            android:text="@string/backend_checking"
-            android:textColor="#888888"
-            android:textSize="13sp" />
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="12dp"
+            android:paddingEnd="8dp"
+            android:paddingTop="6dp"
+            android:paddingBottom="6dp">
+
+            <TextView
+                android:id="@+id/tvBackend"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/backend_checking"
+                android:textColor="#888888"
+                android:textSize="13sp" />
+
+            <Button
+                android:id="@+id/btnBackendCheck"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="0dp"
+                android:text="@string/backend_check" />
+        </LinearLayout>
 
         <!-- ① 登录 -->
         <LinearLayout
