@@ -9,7 +9,7 @@
     your SMS follow you while you are away.
   </p>
   <p>
-    🌐 <a href="https://smsforwarder.shuttlelab.org">smsforwarder.shuttlelab.org</a>
+    🌐 <a href="https://smsforwarder.shuttlelab.org">Forward SMS to Telegram on Android — SMS Forwarder</a>
     &nbsp;·&nbsp;
     🔌 Backend: <a href="https://github.com/ShuttleLab/smsforwarder-api">smsforwarder-api</a>
   </p>
