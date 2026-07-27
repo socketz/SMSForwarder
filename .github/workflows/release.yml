@@ -72,6 +72,8 @@ jobs:
         run: |
           cp app/build/outputs/apk/release/app-release.apk "SMSForwarder-${{ github.ref_name }}.apk"
           cp app/build/outputs/bundle/release/app-release.aab "SMSForwarder-${{ github.ref_name }}.aab"
+          # 固定名副本：官网可用 /releases/latest/download/SMSForwarder.apk 直连下载最新版
+          cp app/build/outputs/apk/release/app-release.apk "SMSForwarder.apk"
 
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
@@ -79,4 +81,5 @@ jobs:
           files: |
             SMSForwarder-${{ github.ref_name }}.apk
             SMSForwarder-${{ github.ref_name }}.aab
+            SMSForwarder.apk
           generate_release_notes: true
