@@ -75,6 +75,33 @@ object Api {
                 .put("client_msg_id", clientMsgId),
             auth = true)
 
+    // ---- 后端连通性探测 ----
+
+    /**
+     * ping 后端 /healthz，判断"这台手机现在能不能连到后端"。用较短超时（状态灯要快），
+     * 无鉴权。true=可达且返回 200；false=超时/网络错误/非 200。必须在后台线程调用。
+     */
+    fun health(ctx: Context): Boolean {
+        val url = Prefs.baseUrl(ctx).trimEnd('/') + "/healthz"
+        return try {
+            val conn = (URL(url).openConnection() as HttpURLConnection).apply {
+                connectTimeout = HEALTH_TIMEOUT_MS
+                readTimeout = HEALTH_TIMEOUT_MS
+                requestMethod = "GET"
+                useCaches = false
+                setRequestProperty("Accept", "application/json")
+            }
+            val code = conn.responseCode
+            conn.inputStream?.use { it.readBytes() }
+            conn.disconnect()
+            code in 200..299
+        } catch (_: Exception) {
+            false
+        }
+    }
+
+    private const val HEALTH_TIMEOUT_MS = 8000
+
     // ---- 核心请求 ----
 
     private fun request(ctx: Context, method: String, path: String, body: JSONObject?, auth: Boolean, authToken: String? = null): ApiResp {

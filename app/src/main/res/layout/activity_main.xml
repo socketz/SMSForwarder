@@ -44,6 +44,20 @@
             android:textColor="#888888"
             android:textSize="13sp" />
 
+        <!-- 后端连通状态灯（点一下重新检查） -->
+        <TextView
+            android:id="@+id/tvBackend"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/card_bg"
+            android:clickable="true"
+            android:focusable="true"
+            android:padding="12dp"
+            android:text="@string/backend_checking"
+            android:textColor="#888888"
+            android:textSize="13sp" />
+
         <!-- ① 登录 -->
         <LinearLayout
             android:layout_width="match_parent"

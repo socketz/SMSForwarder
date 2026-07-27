@@ -10,6 +10,9 @@
 
     <!-- Main: 3-step guide -->
     <string name="main_guide">Three steps and you\'re done:</string>
+    <string name="backend_checking">Backend · checking connection…</string>
+    <string name="backend_online_fmt">Backend · 🟢 online · checked %1$s</string>
+    <string name="backend_offline_fmt">Backend · 🔴 can\'t connect · check your network (tap to retry) · %1$s</string>
     <string name="step1_title">1 · Sign in / Register</string>
     <string name="step1_done_fmt">Signed in: %1$s</string>
     <string name="step1_todo">Not signed in — sign in below to start</string>

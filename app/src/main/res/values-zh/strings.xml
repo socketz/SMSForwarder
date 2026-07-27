@@ -10,6 +10,9 @@
 
     <!-- 主界面：三步引导 -->
     <string name="main_guide">三步即可使用：</string>
+    <string name="backend_checking">后端 · 检查连接中…</string>
+    <string name="backend_online_fmt">后端 · 🟢 在线 · %1$s 检查</string>
+    <string name="backend_offline_fmt">后端 · 🔴 无法连接 · 请检查网络（点一下重试）· %1$s</string>
     <string name="step1_title">① 登录 / 注册</string>
     <string name="step1_done_fmt">已登录：%1$s</string>
     <string name="step1_todo">未登录 — 点下方登录/注册开始</string>

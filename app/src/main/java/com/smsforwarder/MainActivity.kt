@@ -33,6 +33,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var btnStep2: Button
     private lateinit var btnToggle: Button
     private lateinit var llLog: LinearLayout
+    private lateinit var tvBackend: TextView
 
     private val green = 0xFF00E676.toInt()
     private val grey = 0xFF888888.toInt()
@@ -60,6 +61,8 @@ class MainActivity : AppCompatActivity() {
         btnStep2 = findViewById(R.id.btnStep2)
         btnToggle = findViewById(R.id.btnToggle)
         llLog = findViewById(R.id.llLog)
+        tvBackend = findViewById(R.id.tvBackend)
+        tvBackend.setOnClickListener { pingBackend() }
 
         findViewById<Button>(R.id.btnSettings).setOnClickListener {
             startActivity(Intent(this, SettingsActivity::class.java))
@@ -73,6 +76,26 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         refresh()
+        pingBackend()
+    }
+
+    /** 探测后端是否可达（打开界面/点状态灯时），把结果显示成 🟢/🔴。网络在后台线程做。 */
+    private fun pingBackend() {
+        tvBackend.text = getString(R.string.backend_checking)
+        tvBackend.setTextColor(grey)
+        Thread {
+            val ok = Api.health(this)
+            runOnUiThread {
+                val now = DateFormat.format("HH:mm", System.currentTimeMillis()).toString()
+                if (ok) {
+                    tvBackend.text = getString(R.string.backend_online_fmt, now)
+                    tvBackend.setTextColor(green)
+                } else {
+                    tvBackend.text = getString(R.string.backend_offline_fmt, now)
+                    tvBackend.setTextColor(0xFFFF5252.toInt())
+                }
+            }
+        }.start()
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
