@@ -30,36 +30,37 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      # 有 KEYSTORE_BASE64 才解码并启用签名；没有则跳过，构建回退到 debug 签名（不再硬失败）
-      - name: Decode keystore (if provided)
+      # Release 必须正式签名：缺少签名密钥直接失败，绝不回退 debug 签名
+      - name: Require & decode keystore
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
         run: |
-          if [ -n "$KEYSTORE_BASE64" ]; then
-            echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.jks"
-            echo "KEYSTORE_FILE=$RUNNER_TEMP/release.jks" >> "$GITHUB_ENV"
-            echo "signing: using provided release keystore"
-          else
-            echo "signing: KEYSTORE_BASE64 not set — falling back to debug signing"
+          if [ -z "$KEYSTORE_BASE64" ]; then
+            echo "::error::KEYSTORE_BASE64 未设置 —— release 必须正式签名。请在仓库 Secrets 配置后重试。"
+            exit 1
           fi
+          echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.jks"
+          echo "KEYSTORE_FILE=$RUNNER_TEMP/release.jks" >> "$GITHUB_ENV"
 
-      # KEYSTORE_FILE 仅在上一步设置了才存在于环境中；未设置时 build.gradle 走 debug 签名
-      - name: Build release APK
+      - name: Build signed release APK + AAB
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
           chmod +x gradlew
-          ./gradlew assembleRelease --no-daemon
+          # APK = GitHub 直接安装；AAB = 上传 Google Play（如需上架）
+          ./gradlew assembleRelease bundleRelease --no-daemon
 
-      - name: Rename artifact
+      - name: Rename artifacts
         run: |
           cp app/build/outputs/apk/release/app-release.apk "SMSForwarder-${{ github.ref_name }}.apk"
+          cp app/build/outputs/bundle/release/app-release.aab "SMSForwarder-${{ github.ref_name }}.aab"
 
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           files: |
             SMSForwarder-${{ github.ref_name }}.apk
+            SMSForwarder-${{ github.ref_name }}.aab
           generate_release_notes: true
