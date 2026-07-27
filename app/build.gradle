@@ -1,0 +1,64 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+}
+
+android {
+    namespace 'com.smsforwarder'
+    compileSdk 36
+
+    // 版本号由 CI 从 git tag 注入（见 .github/workflows/release.yml）；
+    // 本地 / debug 构建没有这两个环境变量时，回退到占位版本，保证能编译
+    def ciVersionName = System.getenv("VERSION_NAME")
+    def ciVersionCode = System.getenv("VERSION_CODE")
+
+    defaultConfig {
+        applicationId "com.smsforwarder"
+        minSdk 26
+        targetSdk 36
+        versionCode ciVersionCode ? ciVersionCode.toInteger() : 1
+        versionName ciVersionName ?: "0.0.0-dev"
+    }
+
+    // 发布签名：CI 通过环境变量注入；本地/无密钥时回退到 debug 签名，保证 assembleRelease 不报错
+    def keystoreFile = System.getenv("KEYSTORE_FILE")
+    signingConfigs {
+        release {
+            if (keystoreFile != null) {
+                storeFile file(keystoreFile)
+                storePassword System.getenv("KEYSTORE_PASSWORD")
+                keyAlias System.getenv("KEY_ALIAS")
+                keyPassword System.getenv("KEY_PASSWORD")
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig keystoreFile != null ? signingConfigs.release : signingConfigs.debug
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+    buildFeatures {
+        viewBinding true
+    }
+}
+
+dependencies {
+    implementation 'androidx.core:core-ktx:1.12.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.10.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.lifecycle:lifecycle-service:2.6.2'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3'
+    // 持久化转发队列：自带 SQLite 存储 + 指数退避重试 + 重启后自动恢复未完成任务
+    implementation 'androidx.work:work-runtime-ktx:2.9.1'
+}

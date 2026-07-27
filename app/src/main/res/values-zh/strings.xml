@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">短信转发</string>
+
+    <!-- 通知 -->
+    <string name="notif_channel_name">转发状态</string>
+    <string name="notif_channel_desc">短信转发服务的常驻状态</string>
+    <string name="notif_not_logged_in">未登录 — 打开 App 登录</string>
+    <string name="notif_running_fmt">已上传 %1$d · 失败 %2$d</string>
+
+    <!-- 主界面：三步引导 -->
+    <string name="main_guide">三步即可使用：</string>
+    <string name="step1_title">① 登录 / 注册</string>
+    <string name="step1_done_fmt">已登录：%1$s</string>
+    <string name="step1_todo">未登录 — 点下方登录/注册开始</string>
+    <string name="step2_title">② 绑定 Telegram</string>
+    <string name="step2_checking">检查中…</string>
+    <string name="step2_done">已绑定 Telegram</string>
+    <string name="step2_todo">未绑定，收不到消息 — 点下方去绑定</string>
+    <string name="step2_need_login">请先完成第 1 步登录</string>
+    <string name="step3_title">③ 开启服务</string>
+    <string name="step3_running">服务运行中</string>
+    <string name="step3_stopped">服务未启动</string>
+    <string name="btn_start">启动服务</string>
+    <string name="btn_stop">停止服务</string>
+    <string name="btn_login">登录 / 注册</string>
+    <string name="btn_logout">退出登录</string>
+    <string name="btn_channels">渠道管理</string>
+    <string name="btn_register">注册新账号</string>
+
+    <string name="logout_title">退出登录？</string>
+    <string name="logout_msg">服务会停止，本设备退出登录。重新登录前收到的短信将不再转发。</string>
+    <string name="logout">退出登录</string>
+
+    <!-- 权限 / 保活 -->
+    <string name="perm_ok">✓ 已授予短信与通知权限</string>
+    <string name="perm_missing">✗ 缺少短信 / 通知权限</string>
+    <string name="btn_grant_perm">授予权限</string>
+    <string name="battery_ok">✓ 已加入电池优化白名单</string>
+    <string name="battery_need">✗ 未豁免电池优化（可能被杀）</string>
+    <string name="btn_battery">忽略电池优化</string>
+    <string name="btn_autostart">自启动 / 后台白名单</string>
+    <string name="autostart_title">保证后台存活</string>
+    <string name="autostart_msg">在小米 / 华为 / OPPO / vivo 等国产 ROM 上，必须手动允许本应用「自启动」并「允许后台运行」，否则系统会冻结或杀死它，转发就会停止。\n\n点「打开」跳转到自启动设置（或应用详情页），然后开启自启动、解除后台限制。</string>
+    <string name="autostart_open">打开</string>
+
+    <string name="btn_settings">设置</string>
+    <string name="btn_about">关于</string>
+    <string name="recent_uploads">最近上传</string>
+    <string name="btn_clear_log">清空</string>
+    <string name="log_empty">还没有上传记录</string>
+    <string name="log_ok">成功</string>
+    <string name="log_fail">失败</string>
+    <string name="log_to_server">→ 服务器</string>
+    <string name="toast_need_perm">请先授予短信和通知权限</string>
+
+    <!-- 登录 -->
+    <string name="login_title">登录</string>
+    <string name="login_hint">登录一次即可，本设备会保持登录。登录后再配置渠道。</string>
+    <string name="login_working">处理中…</string>
+    <string name="login_username">用户名</string>
+    <string name="login_password">密码</string>
+    <string name="login_need_fields">请输入用户名和密码</string>
+    <string name="login_ok">已登录</string>
+    <string name="login_fail_fmt">失败：%1$s</string>
+
+    <!-- 渠道 -->
+    <string name="ch_add_telegram">+ Telegram</string>
+    <string name="ch_telegram">Telegram</string>
+    <string name="ch_ready">✓ 已就绪</string>
+    <string name="ch_tg_unbound">未绑定 — 点「绑定」</string>
+    <string name="ch_empty">还没有渠道。点上方添加 Telegram。</string>
+    <string name="ch_load_fail_fmt">加载失败：%1$s</string>
+    <string name="ch_op_fail_fmt">失败：%1$s</string>
+    <string name="ch_added_tg">已添加 Telegram 渠道 — 点「绑定」完成关联。</string>
+    <string name="ch_bind">绑定</string>
+    <string name="ch_bind_fail">未能获取绑定链接</string>
+    <string name="ch_bind_open_tg">正在打开 Telegram — 点 Start 完成绑定后返回。</string>
+    <string name="ch_bind_no_tg">在 Telegram 里打开此链接</string>
+    <string name="ch_testing">正在发送测试…</string>
+    <string name="ch_test_ok">测试已送达</string>
+    <string name="ch_test_fail_fmt">测试失败：%1$s</string>
+    <string name="ch_delete">删除</string>
+    <string name="ch_delete_title">删除渠道？</string>
+    <string name="ch_delete_msg">该渠道将不再接收转发的短信。</string>
+
+    <!-- 设置 -->
+    <string name="btn_back">返回</string>
+    <string name="btn_save">保存</string>
+    <string name="btn_test">测试</string>
+    <string name="cfg_survival_title">权限与保活</string>
+    <string name="btn_diag_sms">诊断：读取短信库</string>
+    <string name="btn_debug_log">运行日志</string>
+    <string name="cfg_poll_sec">轮询间隔（秒，3–120）</string>
+    <string name="cfg_keepalive">激进保活（静音音频）</string>
+    <string name="cfg_keepalive_desc">循环播放一段无声音频，让系统把 App 当媒体播放器对待、更不易杀掉。会占用一点点 CPU/耗电，建议仅在插电常开的手机上开启。下次服务（重）启动时生效。</string>
+    <string name="cfg_capture_title">抓取与日志</string>
+    <string name="cfg_poll_desc">前台服务每隔这么多秒读一次短信库、转发新短信。越短越快；插电常开的机器无所谓。</string>
+    <string name="cfg_log_keep">日志保留条数（20–2000）</string>
+    <string name="cfg_base_url">后端地址（高级）</string>
+    <string name="cfg_base_url_desc">留空使用默认。仅在对本地/测试服调试时才覆盖。</string>
+    <string name="toast_saved">已保存</string>
+
+    <!-- 语言 -->
+    <string name="btn_language">语言 / Language</string>
+    <string name="lang_title">语言 / Language</string>
+    <string name="lang_system">跟随系统</string>
+    <string name="lang_zh">中文</string>
+    <string name="lang_en">English</string>
+
+    <!-- 关于 -->
+    <string name="about_version">版本 %1$s</string>
+    <string name="about_intro">「短信转发」会把你手机收到的短信转发到你的 Telegram，这样你人不在手机旁边也能随时看到。只需登录、绑定 Telegram、开启服务；把手机插电放家里，短信就跟着你走。</string>
+    <string name="about_disclaimer_title">免责声明</string>
+    <string name="about_disclaimer">仅供个人使用。本应用读取短信只为转发到你自己配置的目的地；消息内容仅做转发、不在服务器保留。你需自行遵守当地法律法规，并对自己的账号与服务器安全负责。软件按「现状」提供，不作任何担保。</string>
+    <string name="about_github">GitHub</string>
+    <string name="about_website">官网</string>
+    <string name="link_github">https://github.com/ShuttleLab</string>
+    <string name="link_website">https://smsforwarder.shuttlelab.org</string>
+</resources>
