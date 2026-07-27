@@ -7,12 +7,17 @@ android {
     namespace 'com.smsforwarder'
     compileSdk 36
 
+    // 版本号由 CI 从 git tag 注入（见 .github/workflows/release.yml）；
+    // 本地 / debug 构建没有这两个环境变量时，回退到占位版本，保证能编译
+    def ciVersionName = System.getenv("VERSION_NAME")
+    def ciVersionCode = System.getenv("VERSION_CODE")
+
     defaultConfig {
         applicationId "com.smsforwarder"
         minSdk 26
         targetSdk 36
-        versionCode 1
-        versionName "1.0.0"
+        versionCode ciVersionCode ? ciVersionCode.toInteger() : 1
+        versionName ciVersionName ?: "0.0.0-dev"
     }
 
     // 发布签名：CI 通过环境变量注入；本地/无密钥时回退到 debug 签名，保证 assembleRelease 不报错

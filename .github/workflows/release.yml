@@ -30,6 +30,22 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
+      # 版本号从 tag 自动算出，无需改 build.gradle：
+      #   v1.2.3 -> versionName=1.2.3, versionCode=1*10000+2*100+3=10203
+      - name: Derive version from tag
+        run: |
+          TAG="${GITHUB_REF_NAME}"           # 例：v1.2.3
+          VNAME="${TAG#v}"                   # 1.2.3
+          if ! echo "$VNAME" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "::error::tag 必须是 vMAJOR.MINOR.PATCH（如 v1.2.3），当前为 '$TAG'"
+            exit 1
+          fi
+          IFS=. read -r MA MI PA <<< "$VNAME"
+          VCODE=$((MA*10000 + MI*100 + PA))
+          echo "VERSION_NAME=$VNAME"  >> "$GITHUB_ENV"
+          echo "VERSION_CODE=$VCODE" >> "$GITHUB_ENV"
+          echo "versionName=$VNAME  versionCode=$VCODE"
+
       # Release 必须正式签名：缺少签名密钥直接失败，绝不回退 debug 签名
       - name: Require & decode keystore
         env:
