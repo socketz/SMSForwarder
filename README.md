@@ -20,7 +20,7 @@
 ![Android](https://img.shields.io/badge/Android-8.0%2B-3DDC84?style=flat-square&logo=android)
 ![Kotlin](https://img.shields.io/badge/Kotlin-1.9-7F52FF?style=flat-square&logo=kotlin)
 ![Material](https://img.shields.io/badge/Material_Components-1.10-757575?style=flat-square&logo=materialdesign)
-![License](https://img.shields.io/badge/License-Personal_use-blue?style=flat-square)
+![License](https://img.shields.io/badge/License-AGPL--3.0-blue?style=flat-square)
 
 </div>
 
@@ -102,7 +102,10 @@ git push origin v1.0.0
 
 ## License
 
-For personal use. Not published to any app store.
+Licensed under the **GNU Affero General Public License v3.0** (AGPL-3.0) — see
+[LICENSE](LICENSE). You may use, study, modify and redistribute it, but any distributed
+or network-served derivative must also be released under AGPL-3.0. A personal project;
+not published to any app store.
 
 <div align="center">
   Built by <a href="https://github.com/ShuttleLab">ShuttleLab</a>
