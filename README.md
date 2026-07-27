@@ -13,6 +13,7 @@
     &nbsp;·&nbsp;
     🔌 Backend: <a href="https://github.com/ShuttleLab/smsforwarder-api">smsforwarder-api</a>
   </p>
+  <img src="docs/screenshot.jpg" alt="SMS Forwarder — home screen" width="300" />
 </div>
 
 <div align="center">
