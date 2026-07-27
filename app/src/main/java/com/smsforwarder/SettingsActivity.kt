@@ -76,15 +76,21 @@ class SettingsActivity : AppCompatActivity() {
 
     /** 语言切换：跟随系统 / 中文 / English，用 AppCompat 的 per-app locale */
     private fun showLanguageDialog() {
-        val tags = listOf("", "zh", "en")
+        val tags = listOf("", "zh", "en", "id", "vi", "pt", "es")
         val labels = arrayOf(
             getString(R.string.lang_system),
             getString(R.string.lang_zh),
             getString(R.string.lang_en),
+            getString(R.string.lang_id),
+            getString(R.string.lang_vi),
+            getString(R.string.lang_pt),
+            getString(R.string.lang_es),
         )
         val cur = AppCompatDelegate.getApplicationLocales()
         val curTag = if (cur.isEmpty) "" else (cur[0]?.language ?: "")
-        val checked = tags.indexOf(if (curTag.startsWith("zh")) "zh" else if (curTag.startsWith("en")) "en" else "")
+        // 当前语言按前缀匹配回 tags（如 "pt-BR" → "pt"）；系统默认则选第一项
+        val matched = tags.drop(1).firstOrNull { curTag.startsWith(it) } ?: ""
+        val checked = tags.indexOf(matched)
         AlertDialog.Builder(this)
             .setTitle(R.string.lang_title)
             .setSingleChoiceItems(labels, checked) { d, which ->

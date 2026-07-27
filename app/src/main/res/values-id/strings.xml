@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SMS Forwarder</string>
+
+    <!-- Notification -->
+    <string name="notif_channel_name">Status penerusan</string>
+    <string name="notif_channel_desc">Status berjalannya layanan penerusan SMS</string>
+    <string name="notif_not_logged_in">Belum masuk — buka aplikasi untuk masuk</string>
+    <string name="notif_running_fmt">%1$d terunggah · %2$d gagal</string>
+
+    <!-- Main: 3-step guide -->
+    <string name="main_guide">Tiga langkah dan selesai:</string>
+    <string name="backend_checking">Layanan · memeriksa…</string>
+    <string name="backend_online_fmt">Layanan · 🟢 tersedia · diperiksa %1$s</string>
+    <string name="backend_offline_fmt">Layanan · 🔴 tidak tersedia · periksa jaringan Anda · %1$s</string>
+    <string name="backend_check">Periksa</string>
+    <string name="step1_title">1 · Masuk / Daftar</string>
+    <string name="step1_done_fmt">Masuk sebagai: %1$s</string>
+    <string name="step1_todo">Belum masuk — masuk di bawah untuk mulai</string>
+    <string name="step2_title">2 · Ikat Telegram</string>
+    <string name="step2_checking">Memeriksa…</string>
+    <string name="step2_done">Telegram terikat</string>
+    <string name="step2_todo">Belum terikat — Anda tidak akan menerima pesan; ketuk di bawah untuk mengikat</string>
+    <string name="step2_need_login">Selesaikan langkah 1 dulu</string>
+    <string name="step3_title">3 · Mulai layanan</string>
+    <string name="step3_running">Layanan berjalan</string>
+    <string name="step3_stopped">Layanan berhenti</string>
+    <string name="btn_start">Mulai layanan</string>
+    <string name="btn_stop">Hentikan layanan</string>
+    <string name="btn_login">Masuk / Daftar</string>
+    <string name="btn_logout">Keluar</string>
+    <string name="btn_channels">Kelola channel</string>
+    <string name="btn_register">Daftar akun baru</string>
+
+    <string name="logout_title">Keluar?</string>
+    <string name="logout_msg">Layanan akan berhenti dan perangkat ini akan keluar. SMS masuk tidak akan diteruskan lagi sampai Anda masuk kembali.</string>
+    <string name="logout">Keluar</string>
+
+    <!-- Permissions / survival -->
+    <string name="perm_ok">✓ Izin SMS &amp; notifikasi diberikan</string>
+    <string name="perm_missing">✗ Izin SMS / notifikasi belum ada</string>
+    <string name="btn_grant_perm">Beri izin</string>
+    <string name="battery_ok">✓ Optimasi baterai: dikecualikan</string>
+    <string name="battery_need">✗ Belum dikecualikan dari optimasi baterai (bisa dimatikan)</string>
+    <string name="btn_battery">Abaikan optimasi baterai</string>
+    <string name="btn_autostart">Auto-start / whitelist latar belakang</string>
+    <string name="autostart_title">Jaga aplikasi tetap hidup</string>
+    <string name="autostart_msg">Pada ROM seperti Xiaomi / Huawei / OPPO / vivo dan sejenisnya, Anda harus mengizinkan aplikasi ini secara manual untuk auto-start dan berjalan di latar belakang, jika tidak sistem akan membekukan atau mematikannya dan penerusan akan berhenti.\n\nKetuk Buka untuk menuju pengaturan auto-start (atau detail aplikasi Anda), lalu aktifkan auto-start dan hapus batasan latar belakang apa pun.</string>
+    <string name="autostart_open">Buka</string>
+
+    <string name="btn_settings">Pengaturan</string>
+    <string name="btn_about">Tentang</string>
+    <string name="recent_uploads">Unggahan terbaru</string>
+    <string name="btn_clear_log">Hapus</string>
+    <string name="log_empty">Belum ada unggahan</string>
+    <string name="log_ok">OK</string>
+    <string name="log_fail">GAGAL</string>
+    <string name="log_to_server">→ server</string>
+    <string name="toast_need_perm">Beri izin SMS dan notifikasi dulu</string>
+
+    <!-- Login -->
+    <string name="login_title">Masuk</string>
+    <string name="login_hint">Masuk sekali; perangkat ini tetap masuk. Atur channel setelah masuk.</string>
+    <string name="login_working">Memproses…</string>
+    <string name="login_username">Nama pengguna</string>
+    <string name="login_password">Kata sandi</string>
+    <string name="login_need_fields">Masukkan nama pengguna dan kata sandi</string>
+    <string name="login_ok">Berhasil masuk</string>
+    <string name="login_fail_fmt">Gagal: %1$s</string>
+
+    <!-- Channels -->
+    <string name="ch_add_telegram">+ Telegram</string>
+    <string name="ch_telegram">Telegram</string>
+    <string name="ch_ready">✓ siap</string>
+    <string name="ch_tg_unbound">belum terikat — ketuk Bind</string>
+    <string name="ch_empty">Belum ada channel. Tambahkan Telegram di atas.</string>
+    <string name="ch_load_fail_fmt">Gagal memuat: %1$s</string>
+    <string name="ch_op_fail_fmt">Gagal: %1$s</string>
+    <string name="ch_added_tg">Channel Telegram ditambahkan — ketuk Bind untuk menghubungkannya.</string>
+    <string name="ch_bind">Bind</string>
+    <string name="ch_bind_fail">Tidak bisa mendapatkan tautan ikat</string>
+    <string name="ch_bind_open_tg">Membuka Telegram — tekan Start untuk menyelesaikan pengikatan, lalu kembali.</string>
+    <string name="ch_bind_no_tg">Buka tautan ini di Telegram</string>
+    <string name="ch_testing">Mengirim tes…</string>
+    <string name="ch_test_ok">Tes terkirim</string>
+    <string name="ch_test_fail_fmt">Tes gagal: %1$s</string>
+    <string name="ch_delete">Hapus</string>
+    <string name="ch_delete_title">Hapus channel?</string>
+    <string name="ch_delete_msg">Channel ini akan berhenti menerima SMS yang diteruskan.</string>
+
+    <!-- Settings -->
+    <string name="btn_back">Kembali</string>
+    <string name="btn_save">Simpan</string>
+    <string name="btn_test">Tes</string>
+    <string name="cfg_survival_title">Izin &amp; keep-alive</string>
+    <string name="btn_diag_sms">Diagnosis: baca kotak masuk SMS</string>
+    <string name="btn_debug_log">Log aktivitas</string>
+    <string name="cfg_poll_sec">Interval polling (detik, 3–120)</string>
+    <string name="cfg_keepalive">Keep-alive agresif (audio senyap)</string>
+    <string name="cfg_keepalive_desc">Memutar loop audio senyap agar sistem memperlakukan aplikasi seperti pemutar media dan lebih kecil kemungkinan dimatikan. Sedikit memakai CPU/baterai — disarankan hanya untuk ponsel yang tercolok. Berlaku saat layanan (di)mulai berikutnya.</string>
+    <string name="cfg_capture_title">Tangkapan &amp; log</string>
+    <string name="cfg_poll_desc">Seberapa sering layanan membaca kotak masuk SMS dan meneruskan pesan baru. Lebih pendek = lebih cepat; aman pada ponsel yang tercolok.</string>
+    <string name="cfg_log_keep">Entri log yang disimpan (20–2000)</string>
+    <string name="cfg_base_url">URL backend (lanjutan)</string>
+    <string name="cfg_base_url_desc">Kosongkan untuk memakai default. Ganti hanya untuk pengujian lokal/staging.</string>
+    <string name="toast_saved">Tersimpan</string>
+
+    <!-- Language -->
+    <string name="btn_language">Bahasa</string>
+    <string name="lang_title">Bahasa</string>
+    <string name="lang_system">Ikuti sistem</string>
+    <string name="lang_zh">中文</string>
+    <string name="lang_en">English</string>
+    <string name="lang_id">Bahasa Indonesia</string>
+    <string name="lang_vi">Tiếng Việt</string>
+    <string name="lang_pt">Português</string>
+    <string name="lang_es">Español</string>
+
+    <!-- About -->
+    <string name="about_version">Versi %1$s</string>
+    <string name="about_intro">SMS Forwarder menangkap pesan teks yang diterima ponsel Anda dan meneruskannya ke Telegram Anda, sehingga Anda bisa membacanya di mana saja — bahkan saat jauh dari ponsel. Cukup masuk, ikat Telegram Anda, dan mulai layanan; tinggalkan ponsel tercolok di rumah dan SMS Anda ikut ke mana pun Anda pergi.</string>
+    <string name="about_disclaimer_title">Penafian</string>
+    <string name="about_disclaimer">Untuk penggunaan pribadi. Aplikasi membaca SMS Anda hanya untuk meneruskannya ke tujuan yang Anda siapkan; isi pesan diteruskan, tidak disimpan di server. Anda bertanggung jawab mematuhi hukum setempat dan atas keamanan akun serta server Anda sendiri. Disediakan apa adanya, tanpa jaminan apa pun.</string>
+    <string name="about_github">GitHub</string>
+    <string name="about_website">Situs web</string>
+    <string name="link_github">https://github.com/ShuttleLab</string>
+    <string name="link_website">https://smsforwarder.shuttlelab.org</string>
+</resources>

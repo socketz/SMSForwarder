@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SMS Forwarder</string>
+
+    <!-- Notification -->
+    <string name="notif_channel_name">Trạng thái chuyển tiếp</string>
+    <string name="notif_channel_desc">Trạng thái thường trực của dịch vụ chuyển tiếp SMS</string>
+    <string name="notif_not_logged_in">Chưa đăng nhập — mở ứng dụng để đăng nhập</string>
+    <string name="notif_running_fmt">Đã tải lên %1$d · Thất bại %2$d</string>
+
+    <!-- Main: 3-step guide -->
+    <string name="main_guide">Ba bước là xong:</string>
+    <string name="backend_checking">Dịch vụ · đang kiểm tra…</string>
+    <string name="backend_online_fmt">Dịch vụ · 🟢 khả dụng · đã kiểm tra %1$s</string>
+    <string name="backend_offline_fmt">Dịch vụ · 🔴 không khả dụng · hãy kiểm tra mạng · %1$s</string>
+    <string name="backend_check">Kiểm tra</string>
+    <string name="step1_title">1 · Đăng nhập / Đăng ký</string>
+    <string name="step1_done_fmt">Đã đăng nhập: %1$s</string>
+    <string name="step1_todo">Chưa đăng nhập — đăng nhập bên dưới để bắt đầu</string>
+    <string name="step2_title">2 · Liên kết Telegram</string>
+    <string name="step2_checking">Đang kiểm tra…</string>
+    <string name="step2_done">Đã liên kết Telegram</string>
+    <string name="step2_todo">Chưa liên kết — bạn sẽ không nhận được tin nhắn; chạm bên dưới để liên kết</string>
+    <string name="step2_need_login">Hãy hoàn tất bước 1 trước</string>
+    <string name="step3_title">3 · Khởi động dịch vụ</string>
+    <string name="step3_running">Dịch vụ đang chạy</string>
+    <string name="step3_stopped">Dịch vụ đã dừng</string>
+    <string name="btn_start">Khởi động dịch vụ</string>
+    <string name="btn_stop">Dừng dịch vụ</string>
+    <string name="btn_login">Đăng nhập / Đăng ký</string>
+    <string name="btn_logout">Đăng xuất</string>
+    <string name="btn_channels">Quản lý kênh</string>
+    <string name="btn_register">Đăng ký tài khoản mới</string>
+
+    <string name="logout_title">Đăng xuất?</string>
+    <string name="logout_msg">Dịch vụ sẽ dừng và thiết bị này sẽ đăng xuất. SMS đến sẽ không còn được chuyển tiếp cho đến khi bạn đăng nhập lại.</string>
+    <string name="logout">Đăng xuất</string>
+
+    <!-- Permissions / survival -->
+    <string name="perm_ok">✓ Đã cấp quyền SMS và thông báo</string>
+    <string name="perm_missing">✗ Thiếu quyền SMS / thông báo</string>
+    <string name="btn_grant_perm">Cấp quyền</string>
+    <string name="battery_ok">✓ Tối ưu hóa pin: đã được miễn</string>
+    <string name="battery_need">✗ Chưa được miễn tối ưu hóa pin (có thể bị tắt)</string>
+    <string name="btn_battery">Bỏ qua tối ưu hóa pin</string>
+    <string name="btn_autostart">Tự khởi động / danh sách trắng chạy nền</string>
+    <string name="autostart_title">Giữ ứng dụng luôn sống</string>
+    <string name="autostart_msg">Trên các ROM như Xiaomi / Huawei / OPPO / vivo và tương tự, bạn phải cho phép thủ công ứng dụng này tự khởi động và chạy nền, nếu không hệ thống sẽ đóng băng hoặc tắt nó và việc chuyển tiếp sẽ dừng.\n\nChạm Mở để chuyển đến phần cài đặt tự khởi động (hoặc trang thông tin ứng dụng), rồi bật tự khởi động và gỡ bỏ mọi giới hạn chạy nền.</string>
+    <string name="autostart_open">Mở</string>
+
+    <string name="btn_settings">Cài đặt</string>
+    <string name="btn_about">Giới thiệu</string>
+    <string name="recent_uploads">Tải lên gần đây</string>
+    <string name="btn_clear_log">Xóa</string>
+    <string name="log_empty">Chưa có lần tải lên nào</string>
+    <string name="log_ok">OK</string>
+    <string name="log_fail">THẤT BẠI</string>
+    <string name="log_to_server">→ máy chủ</string>
+    <string name="toast_need_perm">Hãy cấp quyền SMS và thông báo trước</string>
+
+    <!-- Login -->
+    <string name="login_title">Đăng nhập</string>
+    <string name="login_hint">Chỉ cần đăng nhập một lần; thiết bị này vẫn giữ đăng nhập. Cấu hình kênh sau khi đăng nhập.</string>
+    <string name="login_working">Đang xử lý…</string>
+    <string name="login_username">Tên đăng nhập</string>
+    <string name="login_password">Mật khẩu</string>
+    <string name="login_need_fields">Nhập tên đăng nhập và mật khẩu</string>
+    <string name="login_ok">Đã đăng nhập</string>
+    <string name="login_fail_fmt">Thất bại: %1$s</string>
+
+    <!-- Channels -->
+    <string name="ch_add_telegram">+ Telegram</string>
+    <string name="ch_telegram">Telegram</string>
+    <string name="ch_ready">✓ sẵn sàng</string>
+    <string name="ch_tg_unbound">chưa liên kết — chạm Liên kết</string>
+    <string name="ch_empty">Chưa có kênh nào. Thêm Telegram ở trên.</string>
+    <string name="ch_load_fail_fmt">Không tải được: %1$s</string>
+    <string name="ch_op_fail_fmt">Thất bại: %1$s</string>
+    <string name="ch_added_tg">Đã thêm kênh Telegram — chạm Liên kết để kết nối.</string>
+    <string name="ch_bind">Liên kết</string>
+    <string name="ch_bind_fail">Không lấy được liên kết để kết nối</string>
+    <string name="ch_bind_open_tg">Đang mở Telegram — nhấn Start để hoàn tất liên kết, rồi quay lại.</string>
+    <string name="ch_bind_no_tg">Mở liên kết này trong Telegram</string>
+    <string name="ch_testing">Đang gửi thử…</string>
+    <string name="ch_test_ok">Đã gửi tin nhắn thử</string>
+    <string name="ch_test_fail_fmt">Gửi thử thất bại: %1$s</string>
+    <string name="ch_delete">Xóa</string>
+    <string name="ch_delete_title">Xóa kênh?</string>
+    <string name="ch_delete_msg">Kênh này sẽ ngừng nhận SMS được chuyển tiếp.</string>
+
+    <!-- Settings -->
+    <string name="btn_back">Quay lại</string>
+    <string name="btn_save">Lưu</string>
+    <string name="btn_test">Gửi thử</string>
+    <string name="cfg_survival_title">Quyền và giữ máy</string>
+    <string name="btn_diag_sms">Chẩn đoán: đọc hộp thư SMS</string>
+    <string name="btn_debug_log">Nhật ký hoạt động</string>
+    <string name="cfg_poll_sec">Chu kỳ quét (giây, 3–120)</string>
+    <string name="cfg_keepalive">Giữ máy mạnh (âm thanh im lặng)</string>
+    <string name="cfg_keepalive_desc">Phát một vòng lặp âm thanh im lặng để hệ thống xem ứng dụng như một trình phát media và ít có khả năng tắt nó hơn. Có tốn một chút CPU/pin — chỉ nên dùng cho điện thoại luôn cắm sạc. Có hiệu lực khi dịch vụ (khởi động lại) lần tới.</string>
+    <string name="cfg_capture_title">Bắt tin và nhật ký</string>
+    <string name="cfg_poll_desc">Tần suất dịch vụ đọc hộp thư SMS và chuyển tiếp tin nhắn mới. Càng ngắn càng nhanh; không sao với điện thoại cắm sạc.</string>
+    <string name="cfg_log_keep">Số mục nhật ký giữ lại (20–2000)</string>
+    <string name="cfg_base_url">URL backend (nâng cao)</string>
+    <string name="cfg_base_url_desc">Để trống để dùng mặc định. Chỉ ghi đè khi thử nghiệm local/staging.</string>
+    <string name="toast_saved">Đã lưu</string>
+
+    <!-- Language -->
+    <string name="btn_language">Ngôn ngữ</string>
+    <string name="lang_title">Ngôn ngữ</string>
+    <string name="lang_system">Theo hệ thống</string>
+    <string name="lang_zh">中文</string>
+    <string name="lang_en">English</string>
+    <string name="lang_id">Bahasa Indonesia</string>
+    <string name="lang_vi">Tiếng Việt</string>
+    <string name="lang_pt">Português</string>
+    <string name="lang_es">Español</string>
+
+    <!-- About -->
+    <string name="about_version">Phiên bản %1$s</string>
+    <string name="about_intro">SMS Forwarder bắt các tin nhắn văn bản mà điện thoại của bạn nhận được và chuyển chúng đến Telegram của bạn, để bạn có thể đọc ở bất cứ đâu — kể cả khi không ở gần điện thoại. Chỉ cần đăng nhập, liên kết Telegram và khởi động dịch vụ; để điện thoại cắm sạc ở nhà và SMS sẽ theo bạn khắp nơi.</string>
+    <string name="about_disclaimer_title">Tuyên bố miễn trừ</string>
+    <string name="about_disclaimer">Dùng cho mục đích cá nhân. Ứng dụng đọc SMS của bạn chỉ để chuyển tiếp đến đích bạn thiết lập; nội dung tin nhắn được chuyển đi, không lưu trên máy chủ. Bạn chịu trách nhiệm tuân thủ luật pháp địa phương và bảo mật tài khoản cùng máy chủ của mình. Được cung cấp theo hiện trạng, không kèm bảo đảm nào.</string>
+    <string name="about_github">GitHub</string>
+    <string name="about_website">Trang web</string>
+    <string name="link_github">https://github.com/ShuttleLab</string>
+    <string name="link_website">https://smsforwarder.shuttlelab.org</string>
+</resources>

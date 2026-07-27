@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SMS Forwarder</string>
+
+    <!-- Notification -->
+    <string name="notif_channel_name">Status de encaminhamento</string>
+    <string name="notif_channel_desc">Status contínuo do serviço de encaminhamento de SMS</string>
+    <string name="notif_not_logged_in">Não conectado — abra o app para entrar</string>
+    <string name="notif_running_fmt">%1$d enviados · %2$d falhas</string>
+
+    <!-- Main: 3-step guide -->
+    <string name="main_guide">Três passos e pronto:</string>
+    <string name="backend_checking">Serviço · verificando…</string>
+    <string name="backend_online_fmt">Serviço · 🟢 disponível · verificado %1$s</string>
+    <string name="backend_offline_fmt">Serviço · 🔴 indisponível · verifique sua rede · %1$s</string>
+    <string name="backend_check">Verificar</string>
+    <string name="step1_title">1 · Entrar / Registrar</string>
+    <string name="step1_done_fmt">Conectado: %1$s</string>
+    <string name="step1_todo">Não conectado — entre abaixo para começar</string>
+    <string name="step2_title">2 · Vincular Telegram</string>
+    <string name="step2_checking">Verificando…</string>
+    <string name="step2_done">Telegram vinculado</string>
+    <string name="step2_todo">Não vinculado — você não receberá mensagens; toque abaixo para vincular</string>
+    <string name="step2_need_login">Conclua o passo 1 primeiro</string>
+    <string name="step3_title">3 · Iniciar o serviço</string>
+    <string name="step3_running">Serviço em execução</string>
+    <string name="step3_stopped">Serviço parado</string>
+    <string name="btn_start">Iniciar serviço</string>
+    <string name="btn_stop">Parar serviço</string>
+    <string name="btn_login">Entrar / Registrar</string>
+    <string name="btn_logout">Sair</string>
+    <string name="btn_channels">Gerenciar canais</string>
+    <string name="btn_register">Registrar uma nova conta</string>
+
+    <string name="logout_title">Sair?</string>
+    <string name="logout_msg">O serviço será interrompido e este dispositivo será desconectado. Os SMS recebidos não serão mais encaminhados até você entrar novamente.</string>
+    <string name="logout">Sair</string>
+
+    <!-- Permissions / survival -->
+    <string name="perm_ok">✓ Permissões de SMS e notificações concedidas</string>
+    <string name="perm_missing">✗ Falta permissão de SMS / notificações</string>
+    <string name="btn_grant_perm">Conceder permissões</string>
+    <string name="battery_ok">✓ Otimização de bateria: isento</string>
+    <string name="battery_need">✗ Sem isenção da otimização de bateria (pode ser encerrado)</string>
+    <string name="btn_battery">Ignorar otimização de bateria</string>
+    <string name="btn_autostart">Inicialização automática / lista de permissões em segundo plano</string>
+    <string name="autostart_title">Manter o app ativo</string>
+    <string name="autostart_msg">Em ROMs da Xiaomi / Huawei / OPPO / vivo e semelhantes, você precisa permitir manualmente que este app inicie automaticamente e rode em segundo plano; caso contrário, o sistema irá congelá-lo ou encerrá-lo e o encaminhamento vai parar.\n\nToque em Abrir para ir às configurações de inicialização automática (ou aos detalhes do app), depois ative a inicialização automática e remova qualquer restrição de segundo plano.</string>
+    <string name="autostart_open">Abrir</string>
+
+    <string name="btn_settings">Configurações</string>
+    <string name="btn_about">Sobre</string>
+    <string name="recent_uploads">Envios recentes</string>
+    <string name="btn_clear_log">Limpar</string>
+    <string name="log_empty">Nenhum envio ainda</string>
+    <string name="log_ok">OK</string>
+    <string name="log_fail">FALHA</string>
+    <string name="log_to_server">→ servidor</string>
+    <string name="toast_need_perm">Conceda primeiro as permissões de SMS e notificações</string>
+
+    <!-- Login -->
+    <string name="login_title">Entrar</string>
+    <string name="login_hint">Entre uma vez; este dispositivo permanece conectado. Configure os canais depois de entrar.</string>
+    <string name="login_working">Processando…</string>
+    <string name="login_username">Nome de usuário</string>
+    <string name="login_password">Senha</string>
+    <string name="login_need_fields">Digite o nome de usuário e a senha</string>
+    <string name="login_ok">Conectado</string>
+    <string name="login_fail_fmt">Falhou: %1$s</string>
+
+    <!-- Channels -->
+    <string name="ch_add_telegram">+ Telegram</string>
+    <string name="ch_telegram">Telegram</string>
+    <string name="ch_ready">✓ pronto</string>
+    <string name="ch_tg_unbound">não vinculado — toque em Vincular</string>
+    <string name="ch_empty">Nenhum canal ainda. Adicione o Telegram acima.</string>
+    <string name="ch_load_fail_fmt">Falha ao carregar: %1$s</string>
+    <string name="ch_op_fail_fmt">Falhou: %1$s</string>
+    <string name="ch_added_tg">Canal do Telegram adicionado — toque em Vincular para conectá-lo.</string>
+    <string name="ch_bind">Vincular</string>
+    <string name="ch_bind_fail">Não foi possível obter o link de vinculação</string>
+    <string name="ch_bind_open_tg">Abrindo o Telegram — toque em Start para concluir a vinculação e depois volte.</string>
+    <string name="ch_bind_no_tg">Abra este link no Telegram</string>
+    <string name="ch_testing">Enviando teste…</string>
+    <string name="ch_test_ok">Teste entregue</string>
+    <string name="ch_test_fail_fmt">Teste falhou: %1$s</string>
+    <string name="ch_delete">Excluir</string>
+    <string name="ch_delete_title">Excluir canal?</string>
+    <string name="ch_delete_msg">Este canal deixará de receber os SMS encaminhados.</string>
+
+    <!-- Settings -->
+    <string name="btn_back">Voltar</string>
+    <string name="btn_save">Salvar</string>
+    <string name="btn_test">Testar</string>
+    <string name="cfg_survival_title">Permissões e keep-alive</string>
+    <string name="btn_diag_sms">Diagnóstico: ler a caixa de entrada de SMS</string>
+    <string name="btn_debug_log">Registro de atividade</string>
+    <string name="cfg_poll_sec">Intervalo de verificação (segundos, 3–120)</string>
+    <string name="cfg_keepalive">Keep-alive agressivo (áudio silencioso)</string>
+    <string name="cfg_keepalive_desc">Reproduz um áudio silencioso em loop para que o sistema trate o app como um reprodutor de mídia e tenha menos chance de encerrá-lo. Usa um pouco de CPU/bateria — recomendado apenas para um celular ligado na tomada. Entra em vigor na próxima vez que o serviço (re)iniciar.</string>
+    <string name="cfg_capture_title">Captura e registro</string>
+    <string name="cfg_poll_desc">Com que frequência o serviço lê a caixa de entrada de SMS e encaminha as novas mensagens. Mais curto = mais rápido; sem problema num celular ligado na tomada.</string>
+    <string name="cfg_log_keep">Registros a manter (20–2000)</string>
+    <string name="cfg_base_url">URL do backend (avançado)</string>
+    <string name="cfg_base_url_desc">Deixe vazio para usar o padrão. Substitua apenas para testes locais/de homologação.</string>
+    <string name="toast_saved">Salvo</string>
+
+    <!-- Language -->
+    <string name="btn_language">Idioma</string>
+    <string name="lang_title">Idioma</string>
+    <string name="lang_system">Seguir o sistema</string>
+    <string name="lang_zh">中文</string>
+    <string name="lang_en">English</string>
+    <string name="lang_id">Bahasa Indonesia</string>
+    <string name="lang_vi">Tiếng Việt</string>
+    <string name="lang_pt">Português</string>
+    <string name="lang_es">Español</string>
+
+    <!-- About -->
+    <string name="about_version">Versão %1$s</string>
+    <string name="about_intro">O SMS Forwarder captura as mensagens de texto que seu celular recebe e as encaminha para o seu Telegram, para que você possa lê-las em qualquer lugar — mesmo longe do celular. Basta entrar, vincular o seu Telegram e iniciar o serviço; deixe o celular ligado na tomada em casa e seus SMS vão com você.</string>
+    <string name="about_disclaimer_title">Aviso legal</string>
+    <string name="about_disclaimer">Para uso pessoal. O app lê seus SMS apenas para encaminhá-los ao destino que você configurar; o conteúdo das mensagens é retransmitido, não é mantido no servidor. Você é responsável por cumprir as leis locais e pela segurança da sua própria conta e servidor. Fornecido no estado em que se encontra, sem qualquer garantia.</string>
+    <string name="about_github">GitHub</string>
+    <string name="about_website">Site</string>
+    <string name="link_github">https://github.com/ShuttleLab</string>
+    <string name="link_website">https://smsforwarder.shuttlelab.org</string>
+</resources>
