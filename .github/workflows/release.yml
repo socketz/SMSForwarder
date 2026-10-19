@@ -31,6 +31,8 @@ jobs:
         # v4: Google removed the legacy `tools` SDK package (2026-09), v3's default
         # `tools platform-tools` now fails with "Failed to find package 'tools'".
         uses: android-actions/setup-android@v4
+        with:
+          cmdline-tools-version: 8512546
 
       # 版本号从 tag 自动算出，无需改 build.gradle：
       #   v1.2.3 -> versionName=1.2.3, versionCode=1*10000+2*100+3=10203
